@@ -397,46 +397,55 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 		getNet().server_SendMsg("Blue tickets: " + blueTickets);
 		getNet().server_SendMsg("Red tickets: " + redTickets);
 	}
-	else if (player.isMod())
+	else if (command == "setbluetickets")
 	{
-		if (command == "setbluetickets")
+		if (!player.isMod())
 		{
-			if (args.length < 1)
-			{
-				getNet().server_SendMsg("Please enter a valid number of tickets, " + username);
-			}
-			else
-			{
-				uint tickets = parseInt(args[0]);
-				gatherMatch.tickets.SetBlueTickets(tickets);
-				getNet().server_SendMsg("Blue Team now has " + tickets + " " + plural(tickets, "ticket"));
-			}
+			getNet().server_SendMsg("Only a mod can set the tickets, " + username);
 		}
-		else if (command == "setredtickets")
+		else if (args.length < 1)
 		{
-			if (args.length < 1)
-			{
-				getNet().server_SendMsg("Please enter a valid number of tickets, " + username);
-			}
-			else
-			{
-				uint tickets = parseInt(args[0]);
-				gatherMatch.tickets.SetRedTickets(tickets);
-				getNet().server_SendMsg("Red Team now has " + tickets + " " + plural(tickets, "ticket"));
-			}
+			getNet().server_SendMsg("Please enter a valid number of tickets, " + username);
 		}
-		else if (command == "settickets")
+		else
 		{
-			if (args.length < 1)
-			{
-				getNet().server_SendMsg("Please enter a valid number of tickets, " + username);
-			}
-			else
-			{
-				uint tickets = parseInt(args[0]);
-				gatherMatch.tickets.SetBlueTickets(tickets);
-				gatherMatch.tickets.SetRedTickets(tickets);
-			}
+			uint tickets = parseInt(args[0]);
+			gatherMatch.tickets.SetBlueTickets(tickets);
+			getNet().server_SendMsg("Blue Team now has " + tickets + " " + plural(tickets, "ticket"));
+		}
+	}
+	else if (command == "setredtickets")
+	{
+		if (!player.isMod())
+		{
+			getNet().server_SendMsg("Only a mod can set the tickets, " + username);
+		}
+		else if (args.length < 1)
+		{
+			getNet().server_SendMsg("Please enter a valid number of tickets, " + username);
+		}
+		else
+		{
+			uint tickets = parseInt(args[0]);
+			gatherMatch.tickets.SetRedTickets(tickets);
+			getNet().server_SendMsg("Red Team now has " + tickets + " " + plural(tickets, "ticket"));
+		}
+	}
+	else if (command == "settickets")
+	{
+		if (!player.isMod())
+		{
+			getNet().server_SendMsg("Only a mod can set the tickets, " + username);
+		}
+		else if (args.length < 1)
+		{
+			getNet().server_SendMsg("Please enter a valid number of tickets, " + username);
+		}
+		else
+		{
+			uint tickets = parseInt(args[0]);
+			gatherMatch.tickets.SetBlueTickets(tickets);
+			gatherMatch.tickets.SetRedTickets(tickets);
 		}
 	}
 
