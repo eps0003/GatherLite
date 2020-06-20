@@ -84,16 +84,24 @@ shared class GatherMatch
 
 	void EndMatch()
 	{
-		matchIsLive = false;
+		if (isLive())
+		{
+			matchIsLive = false;
 
-		CRules@ rules = getRules();
-		rules.clear("blue_team");
-		rules.clear("red_team");
-		SyncTeams();
+			CRules@ rules = getRules();
+			rules.clear("blue_team");
+			rules.clear("red_team");
+			SyncTeams();
 
-		u8 winningTeam = getRules().getTeamWon();
-		tcpr("<gather> ended " + winningTeam);
-		SendMessage("===================== Match ended! ======================", ConsoleColour::CRAZY);
+			u8 winningTeam = getRules().getTeamWon();
+			uint duration = rules.isMatchRunning() ? (getGameTime() - rules.get_u32("start_time")) : 0;
+			string[] mapPath = getMap().getMapName().split("/");
+			string map = mapPath[mapPath.length - 1];
+			map = map.substr(0, map.length - 4);
+
+			tcpr("<gather> ended " + winningTeam + " " + duration + " " + map);
+			SendMessage("===================== Match ended! ======================", ConsoleColour::CRAZY);
+		}
 	}
 
 	bool isInProgress()

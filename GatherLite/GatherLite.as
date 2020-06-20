@@ -187,9 +187,16 @@ void onStateChange(CRules@ this, const u8 oldState)
 
 	GatherMatch@ gatherMatch = getGatherMatch();
 
-	if (gatherMatch.isLive() && this.isGameOver())
+	if (gatherMatch.isLive())
 	{
-		gatherMatch.EndMatch();
+		if (this.isMatchRunning())
+		{
+			this.set_u32("start_time", getGameTime());
+		}
+		else if (this.isGameOver())
+		{
+			gatherMatch.EndMatch();
+		}
 	}
 }
 
