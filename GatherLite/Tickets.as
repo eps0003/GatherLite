@@ -70,13 +70,13 @@ shared class Tickets
 				case 0:
 					if (getBlueTickets() > 0)
 					{
-						SetBlueTickets(getBlueTickets()--);
+						SetBlueTickets(getBlueTickets() - 1);
 					}
 					break;
 				case 1:
 					if (getRedTickets() > 0)
 					{
-						SetRedTickets(getRedTickets()--);
+						SetRedTickets(getRedTickets() - 1);
 					}
 					break;
 			}
