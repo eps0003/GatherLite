@@ -50,6 +50,11 @@ shared class RestartQueue
 		return queue.isInQueue(username);
 	}
 
+	bool hasVotes()
+	{
+		return queue.getCount() > 0;
+	}
+
 	private uint getTotal()
 	{
 		return Maths::Max(1, getGatherMatch().getPlayerCount() * 0.6f);

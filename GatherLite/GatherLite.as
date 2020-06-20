@@ -311,6 +311,22 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 			gatherMatch.restartQueue.Add(username);
 		}
 	}
+	else if (command == "clearrestart")
+	{
+		if (!player.isMod())
+		{
+			SendMessage("Only a mod can clear votes to restart", ConsoleColour::ERROR, player);
+		}
+		else if (!gatherMatch.restartQueue.hasVotes())
+		{
+			SendMessage("There are already no votes to restart", ConsoleColour::ERROR, player);
+		}
+		else
+		{
+			gatherMatch.restartQueue.Clear();
+			SendMessage(username + " has cleared all votes to restart", ConsoleColour::CRAZY);
+		}
+	}
 	else if (command == "wr" || command == "whoready")
 	{
 		if (gatherMatch.isLive())
@@ -366,6 +382,22 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 			gatherMatch.vetoQueue.Add(username);
 		}
 	}
+	else if (command == "clearveto")
+	{
+		if (!player.isMod())
+		{
+			SendMessage("Only a mod can clear map vetoes", ConsoleColour::ERROR, player);
+		}
+		else if (!gatherMatch.vetoQueue.hasVotes())
+		{
+			SendMessage("There are already no map vetoes", ConsoleColour::ERROR, player);
+		}
+		else
+		{
+			gatherMatch.vetoQueue.Clear();
+			SendMessage(username + " has cleared all map vetoes", ConsoleColour::CRAZY);
+		}
+	}
 	else if (command == "rsub" || command == "reqsub" || command == "requestsub")
 	{
 
@@ -383,6 +415,22 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 		else
 		{
 			gatherMatch.scrambleQueue.Add(username);
+		}
+	}
+	else if (command == "clearscramble")
+	{
+		if (!player.isMod())
+		{
+			SendMessage("Only a mod can clear votes to scramble teams", ConsoleColour::ERROR, player);
+		}
+		else if (!gatherMatch.scrambleQueue.hasVotes())
+		{
+			SendMessage("There are already no votes to scramble teams", ConsoleColour::ERROR, player);
+		}
+		else
+		{
+			gatherMatch.scrambleQueue.Clear();
+			SendMessage(username + " has cleared all votes to scramble teams", ConsoleColour::CRAZY);
 		}
 	}
 	else if (command == "freeze" || command == "pause" || command == "wait")
@@ -450,6 +498,20 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 			gatherMatch.tickets.SetBlueTickets(tickets);
 			gatherMatch.tickets.SetRedTickets(tickets);
 			SendMessage("Both teams now have " + tickets + " " + plural(tickets, "ticket"), ConsoleColour::CRAZY);
+		}
+	}
+	else if (command == "clearvotes")
+	{
+		if (!player.isMod())
+		{
+			SendMessage("Only a mod can clear votes", ConsoleColour::ERROR, player);
+		}
+		else
+		{
+			gatherMatch.restartQueue.Clear();
+			gatherMatch.vetoQueue.Clear();
+			gatherMatch.scrambleQueue.Clear();
+			SendMessage(username + " has cleared all votes", ConsoleColour::CRAZY);
 		}
 	}
 	else
