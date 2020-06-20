@@ -15,8 +15,8 @@ shared class Tickets
 
 	void Clear()
 	{
-		blueTickets = 0;
-		redTickets = 0;
+		SetBlueTickets(0);
+		SetRedTickets(0);
 	}
 
 	uint getBlueTickets()
@@ -51,6 +51,19 @@ shared class Tickets
 		redTickets = tickets;
 	}
 
+	void SetTickets(u8 team, uint tickets)
+	{
+		switch (team)
+		{
+			case 0:
+				SetBlueTickets(tickets);
+				break;
+			case 1:
+				SetRedTickets(tickets);
+				break;
+		}
+	}
+
 	bool hasTickets(u8 team)
 	{
 		return getTickets(team) > 0;
@@ -65,20 +78,10 @@ shared class Tickets
 	{
 		if (canDecrementTickets())
 		{
-			switch (team)
+			if (hasTickets(team))
 			{
-				case 0:
-					if (getBlueTickets() > 0)
-					{
-						SetBlueTickets(getBlueTickets() - 1);
-					}
-					break;
-				case 1:
-					if (getRedTickets() > 0)
-					{
-						SetRedTickets(getRedTickets() - 1);
-					}
-					break;
+				uint tickets = getTickets(team);
+				SetTickets(team, tickets - 1);
 			}
 		}
 	}
