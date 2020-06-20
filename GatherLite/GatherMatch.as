@@ -167,7 +167,7 @@ shared class GatherMatch
 			CPlayer@ player = getPlayerByUsername(username);
 			CBlob@ blob = player.getBlob();
 
-			if (blob !is null || !blob.hasTag("dead"))
+			if (blob !is null && !blob.hasTag("dead"))
 			{
 				return false;
 			}
