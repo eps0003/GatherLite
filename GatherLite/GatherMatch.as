@@ -67,8 +67,9 @@ shared class GatherMatch
 		SColor redColor = rules.getTeam(1).color;
 
 		SendMessage("================= A match is about to begin! ==================", ConsoleColour::CRAZY);
-		SendMessage("Blue Team: epsilon, Solaris, 101i, Vlaxen, 99killerbunny99", blueColor);
-		SendMessage("Red Team: Cruxiat, Ruleral, FG, Waxtor, Pineapple", redColor);
+		SendMessage("Blue Team: " + blueTeam, blueColor);
+		SendMessage("Red Team: " + redTeam, redColor);
+		SendMessage("All players need to !ready in order for the game to begin", ConsoleColour::INFO);
 		SendMessage("====================================================", ConsoleColour::CRAZY);
 	}
 
@@ -78,7 +79,7 @@ shared class GatherMatch
 
 		LoadNextMap();
 		tcpr("<gather> started");
-		SendMessage("Match begun!", ConsoleColour::CRAZY);
+		SendMessage("===================== Match begun! ======================", ConsoleColour::CRAZY);
 	}
 
 	void EndMatch()
@@ -92,7 +93,7 @@ shared class GatherMatch
 
 		u8 winningTeam = getRules().getTeamWon();
 		tcpr("<gather> ended " + winningTeam);
-		SendMessage("Match ended!", ConsoleColour::CRAZY);
+		SendMessage("===================== Match ended! ======================", ConsoleColour::CRAZY);
 	}
 
 	bool isInProgress()
