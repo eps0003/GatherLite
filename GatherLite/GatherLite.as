@@ -129,8 +129,16 @@ void onPlayerLeave(CRules@ this, CPlayer@ player)
 	string username = player.getUsername();
 	GatherMatch@ gatherMatch = getGatherMatch();
 
-	gatherMatch.readyQueue.Remove(username);
-	gatherMatch.restartQueue.Remove(username);
+	//check before removing to suppress the 'already removed' response
+	if (gatherMatch.readyQueue.isReady(username))
+	{
+		gatherMatch.readyQueue.Remove(username);
+	}
+
+	if (gatherMatch.restartQueue.hasVoted(username))
+	{
+		gatherMatch.restartQueue.Remove(username);
+	}
 }
 
 void onPlayerDie(CRules@ this, CPlayer@ victim, CPlayer@ killer, u8 customData)
