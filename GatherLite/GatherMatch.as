@@ -58,6 +58,18 @@ shared class GatherMatch
 		scrambleQueue.Clear();
 		LoadNextMap();
 		SyncTeams();
+
+		CRules@ rules = getRules();
+
+		string blueTeam = listUsernames(getBlueTeam());
+		string redTeam = listUsernames(getRedTeam());
+		SColor blueColor = rules.getTeam(0).color;
+		SColor redColor = rules.getTeam(1).color;
+
+		SendMessage("================= A match is about to begin! ==================", ConsoleColour::CRAZY);
+		SendMessage("Blue Team: epsilon, Solaris, 101i, Vlaxen, 99killerbunny99", blueColor);
+		SendMessage("Red Team: Cruxiat, Ruleral, FG, Waxtor, Pineapple", redColor);
+		SendMessage("====================================================", ConsoleColour::CRAZY);
 	}
 
 	void StartMatch()
