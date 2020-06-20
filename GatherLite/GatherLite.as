@@ -5,6 +5,7 @@ SColor color(255, 255, 0, 0);
 
 void onInit(CRules@ this)
 {
+	this.addCommandID("server_message");
 	onRestart(this);
 }
 
@@ -71,36 +72,31 @@ void onRender(CRules@ this)
 
 void onNewPlayerJoin(CRules@ this, CPlayer@ player)
 {
-	if (isServer())
+	RulesCore@ core;
+	this.get("core", @core);
+	if (core is null) return;
+
+	string username = player.getUsername();
+	GatherMatch@ gatherMatch = getGatherMatch();
+
+	if (gatherMatch.isInProgress())
 	{
-		RulesCore@ core;
-		this.get("core", @core);
-		if (core is null) return;
-
-		string username = player.getUsername();
-		GatherMatch@ gatherMatch = getGatherMatch();
-
-		if (gatherMatch.isInProgress())
-		{
-			u8 team = gatherMatch.getTeamNum(username);
-			core.ChangePlayerTeam(player, team);
-		}
-		else if (player.getTeamNum() != this.getSpectatorTeamNum())
-		{
-			core.ChangePlayerTeam(player, getSmallestTeam(core.teams));
-		}
+		u8 team = gatherMatch.getTeamNum(username);
+		core.ChangePlayerTeam(player, team);
+	}
+	else if (player.getTeamNum() != this.getSpectatorTeamNum())
+	{
+		core.ChangePlayerTeam(player, getSmallestTeam(core.teams));
 	}
 
-	if (player.isMyPlayer())
-	{
-		client_AddToChat("=================== Welcome to Gather! ====================", color);
-		client_AddToChat("Gather is a organised CTF event involving the use of an automated Discord bot to organise matches. Join the Discord in the server description to participate!", color);
-		client_AddToChat("====================================================", color);
-	}
+	SendMessage("=================== Welcome to Gather! ====================", color, player);
+	SendMessage("Gather is a organised CTF event involving the use of an automated Discord bot to organise matches. Join the Discord in the server description to participate!", color, player);
+	SendMessage("====================================================", color, player);
 }
 
 void onPlayerRequestTeamChange(CRules@ this, CPlayer@ player, u8 newTeam)
 {
+	print("a");
 	string username = player.getUsername();
 	GatherMatch@ gatherMatch = getGatherMatch();
 
@@ -458,6 +454,36 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 	}
 
 	return true;
+}
+
+void onCommand(CRules@ this, u8 cmd, CBitStream@ params)
+{
+	if (cmd == this.getCommandID("server_message"))
+	{
+		string message = params.read_string();
+		SColor color(params.read_u32());
+		client_AddToChat(message, color);
+	}
+}
+
+void SendMessage(string message, SColor color)
+{
+	CBitStream bs;
+	bs.write_string(message);
+	bs.write_u32(color.color);
+
+	CRules@ rules = getRules();
+	rules.SendCommand(rules.getCommandID("server_message"), bs, true);
+}
+
+void SendMessage(string message, SColor color, CPlayer@ player)
+{
+	CBitStream bs;
+	bs.write_string(message);
+	bs.write_u32(color.color);
+
+	CRules@ rules = getRules();
+	rules.SendCommand(rules.getCommandID("server_message"), bs, player);
 }
 
 string listUsernames(string[] usernames)
