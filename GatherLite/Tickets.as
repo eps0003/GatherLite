@@ -9,8 +9,8 @@ shared class Tickets
 		uint playerCount = getGatherMatch().getPlayerCount();
 		uint tickets = (playerCount * ticketsPerPlayer) / 2;
 
-		blueTickets = tickets;
-		redTickets = tickets;
+		SetBlueTickets(tickets);
+		SetRedTickets(tickets);
 	}
 
 	void Clear()
@@ -34,9 +34,9 @@ shared class Tickets
 		switch (team)
 		{
 			case 0:
-				return blueTickets;
+				return getBlueTickets();
 			case 1:
-				return redTickets;
+				return getRedTickets();
 		}
 		return 0;
 	}
@@ -68,15 +68,15 @@ shared class Tickets
 			switch (team)
 			{
 				case 0:
-					if (blueTickets > 0)
+					if (getBlueTickets() > 0)
 					{
-						blueTickets--;
+						SetBlueTickets(getBlueTickets()--);
 					}
 					break;
 				case 1:
-					if (redTickets > 0)
+					if (getRedTickets() > 0)
 					{
-						redTickets--;
+						SetRedTickets(getRedTickets()--);
 					}
 					break;
 			}
