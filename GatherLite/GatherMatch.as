@@ -218,6 +218,9 @@ shared class GatherMatch
 		{
 			tickets.LoadConfig(cfg);
 		}
-		warn("Gather config file not found");
+		else
+		{
+			warn("Gather config file not found");
+		}
 	}
 }
