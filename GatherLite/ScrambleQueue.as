@@ -13,7 +13,7 @@ shared class ScrambleQueue
 	{
 		if (queue.Add(username))
 		{
-			getNet().server_SendMsg(username + " has voted to scramble teams");
+			SendMessage(username + " has voted to scramble teams (" + queue.getCount() + "/" + getTotal() + ")", ConsoleColour::GAME);
 
 			if (hasEnoughVotes())
 			{
@@ -22,7 +22,8 @@ shared class ScrambleQueue
 		}
 		else
 		{
-			getNet().server_SendMsg(username + " has already voted to scramble teams (" + queue.getCount() + "/" + getTotal() + ")");
+			CPlayer@ player = getPlayerByUsername(username);
+			SendMessage("You have already voted to scramble teams", ConsoleColour::ERROR, player);
 		}
 	}
 
@@ -30,11 +31,12 @@ shared class ScrambleQueue
 	{
 		if (queue.Remove(username))
 		{
-			getNet().server_SendMsg(username + " has removed their vote to scramble teams (" + queue.getCount() + "/" + getTotal() + ")");
+			SendMessage(username + " has removed their vote to scramble teams (" + queue.getCount() + "/" + getTotal() + ")", ConsoleColour::GAME);
 		}
 		else
 		{
-			getNet().server_SendMsg(username + " does not have a vote to scramble teams (" + queue.getCount() + "/" + getTotal() + ")");
+			CPlayer@ player = getPlayerByUsername(username);
+			SendMessage("You already do not have a vote to scramble teams", ConsoleColour::ERROR, player);
 		}
 	}
 
@@ -61,7 +63,7 @@ shared class ScrambleQueue
 	private void Scramble()
 	{
 		tcpr("<gather> scramble");
-		getNet().server_SendMsg("The teams have been scrambled");
+		SendMessage("The teams have been scrambled", ConsoleColour::CRAZY);
 	}
 
 	void Serialize(CBitStream@ bs)

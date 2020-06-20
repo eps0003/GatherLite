@@ -13,7 +13,7 @@ shared class RestartQueue
 	{
 		if (queue.Add(username))
 		{
-			getNet().server_SendMsg(username + " has voted to restart (" + queue.getCount() + "/" + getTotal() + ")");
+			SendMessage(username + " has voted to restart (" + queue.getCount() + "/" + getTotal() + ")", ConsoleColour::GAME);
 
 			if (hasEnoughVotes())
 			{
@@ -22,7 +22,8 @@ shared class RestartQueue
 		}
 		else
 		{
-			getNet().server_SendMsg(username + " has already voted to restart (" + queue.getCount() + "/" + getTotal() + ")");
+			CPlayer@ player = getPlayerByUsername(username);
+			SendMessage("You have already voted to restart", ConsoleColour::ERROR, player);
 		}
 	}
 
@@ -30,11 +31,12 @@ shared class RestartQueue
 	{
 		if (queue.Remove(username))
 		{
-			getNet().server_SendMsg(username + " has removed their vote to restart (" + queue.getCount() + "/" + getTotal() + ")");
+			SendMessage(username + " has removed their vote to restart (" + queue.getCount() + "/" + getTotal() + ")", ConsoleColour::GAME);
 		}
 		else
 		{
-			getNet().server_SendMsg(username + " does not have a vote to restart (" + queue.getCount() + "/" + getTotal() + ")");
+			CPlayer@ player = getPlayerByUsername(username);
+			SendMessage("You already do not have a vote to restart", ConsoleColour::ERROR, player);
 		}
 	}
 
@@ -61,7 +63,7 @@ shared class RestartQueue
 	private void Restart()
 	{
 		LoadMap(getMap().getMapName());
-		getNet().server_SendMsg("The match has been restarted");
+		SendMessage("The match has been restarted", ConsoleColour::CRAZY);
 	}
 
 	void Serialize(CBitStream@ bs)

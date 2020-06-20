@@ -13,7 +13,7 @@ shared class VetoQueue
 	{
 		if (queue.Add(username))
 		{
-			getNet().server_SendMsg(username + " has vetoed the map (" + queue.getCount() + "/" + getTotal() + ")");
+			SendMessage(username + " has vetoed the map (" + queue.getCount() + "/" + getTotal() + ")", ConsoleColour::GAME);
 
 			if (hasEnoughVotes())
 			{
@@ -22,7 +22,8 @@ shared class VetoQueue
 		}
 		else
 		{
-			getNet().server_SendMsg(username + " has already voted to restart (" + queue.getCount() + "/" + getTotal() + ")");
+			CPlayer@ player = getPlayerByUsername(username);
+			SendMessage("You have already vetoed the map", ConsoleColour::ERROR, player);
 		}
 	}
 
@@ -30,11 +31,12 @@ shared class VetoQueue
 	{
 		if (queue.Remove(username))
 		{
-			getNet().server_SendMsg(username + " has removed their map veto (" + queue.getCount() + "/" + getTotal() + ")");
+			SendMessage(username + " has removed their map veto (" + queue.getCount() + "/" + getTotal() + ")", ConsoleColour::GAME);
 		}
 		else
 		{
-			getNet().server_SendMsg(username + " has not vetoed the map (" + queue.getCount() + "/" + getTotal() + ")");
+			CPlayer@ player = getPlayerByUsername(username);
+			SendMessage("You already have not vetoed the map", ConsoleColour::ERROR, player);
 		}
 	}
 
@@ -61,7 +63,7 @@ shared class VetoQueue
 	private void Veto()
 	{
 		LoadNextMap();
-		getNet().server_SendMsg("The map has been changed");
+		SendMessage("The map has been changed", ConsoleColour::CRAZY);
 	}
 
 	void Serialize(CBitStream@ bs)

@@ -1,12 +1,13 @@
 #include "GatherMatch.as"
 #include "RulesCore.as"
-
-SColor color(255, 255, 0, 0);
+#include "Utilities.as"
 
 void onInit(CRules@ this)
 {
 	this.addCommandID("server_message");
 	this.addCommandID("sync_gather_match");
+	this.addCommandID("sync_gather_teams");
+
 	onRestart(this);
 }
 
@@ -70,9 +71,12 @@ void onTick(CRules@ this)
 	}
 
 	//sync gather match to clients
-	CBitStream bs;
-	gatherMatch.Serialize(bs);
-	this.SendCommand(this.getCommandID("sync_gather_match"), bs, true);
+	if (!isClient() && gatherMatch.isInProgress())
+	{
+		CBitStream bs;
+		gatherMatch.Serialize(bs);
+		this.SendCommand(this.getCommandID("sync_gather_match"), bs, true);
+	}
 }
 
 void onRender(CRules@ this)
@@ -99,9 +103,9 @@ void onNewPlayerJoin(CRules@ this, CPlayer@ player)
 		core.ChangePlayerTeam(player, getSmallestTeam(core.teams));
 	}
 
-	SendMessage("=================== Welcome to Gather! ====================", color, player);
-	SendMessage("Gather is a organised CTF event involving the use of an automated Discord bot to organise matches. Join the Discord in the server description to participate!", color, player);
-	SendMessage("====================================================", color, player);
+	SendMessage("=================== Welcome to Gather! ====================", ConsoleColour::CRAZY, player);
+	SendMessage("Gather is a organised CTF event involving the use of an automated Discord bot to organise matches. Join the Discord in the server description to participate!", ConsoleColour::CRAZY, player);
+	SendMessage("====================================================", ConsoleColour::CRAZY, player);
 }
 
 void onPlayerRequestTeamChange(CRules@ this, CPlayer@ player, u8 newTeam)
@@ -111,7 +115,7 @@ void onPlayerRequestTeamChange(CRules@ this, CPlayer@ player, u8 newTeam)
 
 	if (gatherMatch.isInProgress())
 	{
-		SendMessage("You cannot change teams while the match is in progress", color, player);
+		SendMessage("You cannot change teams while the match is in progress", ConsoleColour::ERROR, player);
 	}
 	else
 	{
@@ -192,6 +196,13 @@ void onStateChange(CRules@ this, const u8 oldState)
 bool onServerProcessChat(CRules@ this, const string& in text_in, string& out text_out, CPlayer@ player)
 {
 	string prefix = "!";
+
+	//check if message starts with prefix
+	if (text_in.substr(0, prefix.length) != prefix)
+	{
+		return true;
+	}
+
 	string[] args = text_in.substr(prefix.length).split(" ");
 	string command = args[0].toLower();
 	args.removeAt(0);
@@ -212,39 +223,32 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 					CPlayer@ player = getPlayer(i);
 					core.ChangePlayerTeam(player, this.getSpectatorTeamNum());
 				}
-				getNet().server_SendMsg("Everyone has been moved to spectator");
+				SendMessage(username + " has moved everyone to spectator", ConsoleColour::CRAZY);
 			}
 			else
 			{
-				getNet().server_SendMsg("Error moving everyone to spectator");
+				SendMessage("Error moving everyone to spectator", ConsoleColour::ERROR, player);
 			}
 		}
 		else
 		{
-			getNet().server_SendMsg("Cannot move everyone to spectator while a match is in progress");
+			SendMessage("Cannot move everyone to spectator while a match is in progress", ConsoleColour::ERROR, player);
 		}
 	}
 	else if (!gatherMatch.isInProgress())
 	{
+		return true;
 		//gather-specific commands go after here
 	}
 	else if (command == "ready" || command == "r")
 	{
 		if (!gatherMatch.isParticipating(username))
 		{
-			getNet().server_SendMsg("You cannot ready if you are not participating in this match, " + username);
-		}
-		else if (player.getTeamNum() == this.getSpectatorTeamNum())
-		{
-			getNet().server_SendMsg("You must be in a team to ready, " + username);
+			SendMessage("You cannot ready because you are not participating in this match", ConsoleColour::ERROR, player);
 		}
 		else if (gatherMatch.isLive())
 		{
-			getNet().server_SendMsg("The match is already in progress, " + username);
-		}
-		else if (gatherMatch.readyQueue.isReady(username))
-		{
-			getNet().server_SendMsg("You are already ready, " + username);
+			SendMessage("The match is already in progress", ConsoleColour::ERROR, player);
 		}
 		else
 		{
@@ -255,15 +259,11 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 	{
 		if (!gatherMatch.isParticipating(username))
 		{
-			getNet().server_SendMsg("You cannot unready if you are not participating in this match, " + username);
+			SendMessage("You cannot ready because you are not participating in this match", ConsoleColour::ERROR, player);
 		}
 		else if (gatherMatch.isLive())
 		{
-			getNet().server_SendMsg("You cannot unready while the match is in progress, " + username);
-		}
-		else if (!gatherMatch.readyQueue.isReady(username))
-		{
-			getNet().server_SendMsg("You are already not ready, " + username);
+			SendMessage("The match is already in progress", ConsoleColour::ERROR, player);
 		}
 		else
 		{
@@ -274,11 +274,11 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 	{
 		if (!player.isMod())
 		{
-			getNet().server_SendMsg("Only a mod can force start a match, " + username);
+			SendMessage("Only a mod can force start a match", ConsoleColour::ERROR, player);
 		}
 		else if (gatherMatch.isLive())
 		{
-			getNet().server_SendMsg("The match is already in progress, " + username);
+			SendMessage("The match is already in progress", ConsoleColour::ERROR, player);
 		}
 		else
 		{
@@ -289,7 +289,7 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 	{
 		if (!player.isMod())
 		{
-			getNet().server_SendMsg("Only a mod can force end a match, " + username);
+			SendMessage("Only a mod can force end a match", ConsoleColour::ERROR, player);
 		}
 		else
 		{
@@ -300,15 +300,11 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 	{
 		if (!gatherMatch.isParticipating(username))
 		{
-			getNet().server_SendMsg("You cannot vote to restart if you are not participating in this match, " + username);
+			SendMessage("You cannot vote to restart because you are not participating in this match", ConsoleColour::ERROR, player);
 		}
 		else if (!gatherMatch.isLive())
 		{
-			getNet().server_SendMsg("You cannot vote to restart before the match has started, " + username);
-		}
-		else if (gatherMatch.restartQueue.hasVoted(username))
-		{
-			getNet().server_SendMsg("You already voted to restart, " + username);
+			SendMessage("You cannot vote to restart before the match has started", ConsoleColour::ERROR, player);
 		}
 		else
 		{
@@ -319,7 +315,7 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 	{
 		if (gatherMatch.isLive())
 		{
-			getNet().server_SendMsg("The match is already in progress, " + username);
+			SendMessage("The match is already in progress", ConsoleColour::ERROR, player);
 		}
 		else
 		{
@@ -327,11 +323,11 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 			if (ready.length > 0)
 			{
 				string text = listUsernames(ready);
-				getNet().server_SendMsg("Ready: " + text);
+				SendMessage(ready.length + " Ready: " + text, ConsoleColour::INFO, player);
 			}
 			else
 			{
-				getNet().server_SendMsg("Nobody is ready");
+				SendMessage("No players are ready", ConsoleColour::INFO, player);
 			}
 		}
 	}
@@ -339,7 +335,7 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 	{
 		if (gatherMatch.isLive())
 		{
-			getNet().server_SendMsg("The match is already in progress, " + username);
+			SendMessage("The match is already in progress", ConsoleColour::ERROR, player);
 		}
 		else
 		{
@@ -347,11 +343,11 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 			if (notReady.length > 0)
 			{
 				string text = listUsernames(notReady);
-				getNet().server_SendMsg("Not ready: " + text);
+				SendMessage(notReady.length + " Not ready: " + text, ConsoleColour::INFO, player);
 			}
 			else
 			{
-				getNet().server_SendMsg("Everyone is ready");
+				SendMessage("All players are ready", ConsoleColour::INFO, player);
 			}
 		}
 	}
@@ -359,15 +355,11 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 	{
 		if (!gatherMatch.isParticipating(username))
 		{
-			getNet().server_SendMsg("You cannot veto the map if you are not participating in this match, " + username);
+			SendMessage("You cannot veto the map because you are not participating in this match", ConsoleColour::ERROR, player);
 		}
 		else if (!gatherMatch.isLive())
 		{
-			getNet().server_SendMsg("You cannot veto the map before the match has started, " + username);
-		}
-		else if (gatherMatch.vetoQueue.hasVoted(username))
-		{
-			getNet().server_SendMsg("You already vetoed the map, " + username);
+			SendMessage("You cannot veto the map before the match has started", ConsoleColour::ERROR, player);
 		}
 		else
 		{
@@ -382,15 +374,11 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 	{
 		if (!gatherMatch.isParticipating(username))
 		{
-			getNet().server_SendMsg("You cannot vote to scramble teams if you are not participating in this match, " + username);
+			SendMessage("You cannot vote to scramble teams because you are not participating in this match", ConsoleColour::ERROR, player);
 		}
 		else if (gatherMatch.isLive())
 		{
-			getNet().server_SendMsg("You cannot vote to scramble teams after the match has started, " + username);
-		}
-		else if (gatherMatch.scrambleQueue.hasVoted(username))
-		{
-			getNet().server_SendMsg("You already voted to scramble teams, " + username);
+			SendMessage("You cannot vote to scramble teams after the match has started", ConsoleColour::ERROR, player);
 		}
 		else
 		{
@@ -409,124 +397,94 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 	{
 		uint blueTickets = gatherMatch.tickets.getBlueTickets();
 		uint redTickets = gatherMatch.tickets.getRedTickets();
-		getNet().server_SendMsg("Blue tickets: " + blueTickets);
-		getNet().server_SendMsg("Red tickets: " + redTickets);
+		SendMessage("Blue tickets: " + blueTickets, ConsoleColour::INFO, player);
+		SendMessage("Red tickets: " + redTickets, ConsoleColour::INFO, player);
 	}
 	else if (command == "setbluetickets")
 	{
 		if (!player.isMod())
 		{
-			getNet().server_SendMsg("Only a mod can set the tickets, " + username);
+			SendMessage("Only a mod can set the tickets", ConsoleColour::ERROR, player);
 		}
 		else if (args.length < 1)
 		{
-			getNet().server_SendMsg("Please enter a valid number of tickets, " + username);
+			SendMessage("Specify a valid number of tickets", ConsoleColour::ERROR, player);
 		}
 		else
 		{
 			uint tickets = parseInt(args[0]);
 			gatherMatch.tickets.SetBlueTickets(tickets);
-			getNet().server_SendMsg("Blue Team now has " + tickets + " " + plural(tickets, "ticket"));
+			SendMessage("Blue Team now has " + tickets + " " + plural(tickets, "ticket"), ConsoleColour::CRAZY);
 		}
 	}
 	else if (command == "setredtickets")
 	{
 		if (!player.isMod())
 		{
-			getNet().server_SendMsg("Only a mod can set the tickets, " + username);
+			SendMessage("Only a mod can set the tickets", ConsoleColour::ERROR, player);
 		}
 		else if (args.length < 1)
 		{
-			getNet().server_SendMsg("Please enter a valid number of tickets, " + username);
+			SendMessage("Specify a valid number of tickets", ConsoleColour::ERROR, player);
 		}
 		else
 		{
 			uint tickets = parseInt(args[0]);
 			gatherMatch.tickets.SetRedTickets(tickets);
-			getNet().server_SendMsg("Red Team now has " + tickets + " " + plural(tickets, "ticket"));
+			SendMessage("Red Team now has " + tickets + " " + plural(tickets, "ticket"), ConsoleColour::CRAZY);
 		}
 	}
 	else if (command == "settickets")
 	{
 		if (!player.isMod())
 		{
-			getNet().server_SendMsg("Only a mod can set the tickets, " + username);
+			SendMessage("Only a mod can set the tickets", ConsoleColour::ERROR, player);
 		}
 		else if (args.length < 1)
 		{
-			getNet().server_SendMsg("Please enter a valid number of tickets, " + username);
+			SendMessage("Specify a valid number of tickets", ConsoleColour::ERROR, player);
 		}
 		else
 		{
 			uint tickets = parseInt(args[0]);
 			gatherMatch.tickets.SetBlueTickets(tickets);
 			gatherMatch.tickets.SetRedTickets(tickets);
+			SendMessage("Both teams now have " + tickets + " " + plural(tickets, "ticket"), ConsoleColour::CRAZY);
 		}
 	}
+	else
+	{
+		//not a gather command
+		return true;
+	}
 
-	return true;
+	return false;
 }
 
 void onCommand(CRules@ this, u8 cmd, CBitStream@ params)
 {
 	if (cmd == this.getCommandID("server_message"))
 	{
-		string message = params.read_string();
-		SColor color(params.read_u32());
-		client_AddToChat(message, color);
+		if (isClient())
+		{
+			string message = params.read_string();
+			SColor color(params.read_u32());
+			client_AddToChat(message, color);
+		}
 	}
 	else if (cmd == this.getCommandID("sync_gather_match"))
 	{
-		if (!isServer())
+		if (isClient())
 		{
 			GatherMatch gatherMatch(params);
 			this.set("gather_match", gatherMatch);
 		}
 	}
-}
-
-void SendMessage(string message, SColor color)
-{
-	CBitStream bs;
-	bs.write_string(message);
-	bs.write_u32(color.color);
-
-	CRules@ rules = getRules();
-	rules.SendCommand(rules.getCommandID("server_message"), bs, true);
-}
-
-void SendMessage(string message, SColor color, CPlayer@ player)
-{
-	CBitStream bs;
-	bs.write_string(message);
-	bs.write_u32(color.color);
-
-	CRules@ rules = getRules();
-	rules.SendCommand(rules.getCommandID("server_message"), bs, player);
-}
-
-string listUsernames(string[] usernames)
-{
-	string text;
-	for (uint i = 0; i < usernames.length; i++)
+	else if (cmd == this.getCommandID("sync_gather_teams"))
 	{
-		if (i > 0)
+		if (isClient())
 		{
-			text += ", ";
+			getGatherMatch().DeserializeTeams(params);
 		}
-		text += usernames[i];
-	}
-	return text;
-}
-
-string plural(int value, string word, string suffix = "s")
-{
-	if (value == 1)
-	{
-		return word;
-	}
-	else
-	{
-		return word + suffix;
 	}
 }

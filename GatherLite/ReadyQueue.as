@@ -13,7 +13,7 @@ shared class ReadyQueue
 	{
 		if (queue.Add(username))
 		{
-			getNet().server_SendMsg(username + " is now ready (" + queue.getCount() + "/" + getTotal() + ")");
+			SendMessage(username + " is now ready (" + queue.getCount() + "/" + getTotal() + ")", ConsoleColour::GAME);
 
 			if (isEveryoneReady())
 			{
@@ -22,7 +22,8 @@ shared class ReadyQueue
 		}
 		else
 		{
-			getNet().server_SendMsg(username + " is already ready (" + queue.getCount() + "/" + getTotal() + ")");
+			CPlayer@ player = getPlayerByUsername(username);
+			SendMessage("You are already ready", ConsoleColour::ERROR, player);
 		}
 	}
 
@@ -30,11 +31,12 @@ shared class ReadyQueue
 	{
 		if (queue.Remove(username))
 		{
-			getNet().server_SendMsg(username + " is no longer ready (" + queue.getCount() + "/" + getTotal() + ")");
+			SendMessage(username + " is no longer ready (" + queue.getCount() + "/" + getTotal() + ")", ConsoleColour::GAME);
 		}
 		else
 		{
-			getNet().server_SendMsg(username + " is already not ready (" + queue.getCount() + "/" + getTotal() + ")");
+			CPlayer@ player = getPlayerByUsername(username);
+			SendMessage("You are already not ready", ConsoleColour::ERROR, player);
 		}
 	}
 

@@ -1,3 +1,4 @@
+#include "Utilities.as"
 #include "ReadyQueue.as"
 #include "RestartQueue.as"
 #include "VetoQueue.as"
@@ -36,41 +37,36 @@ shared class GatherMatch
 
 	GatherMatch(CBitStream@ bs)
 	{
-		readyQueue = ReadyQueue(bs);
-		restartQueue = RestartQueue(bs);
-		vetoQueue = VetoQueue(bs);
-		scrambleQueue = ScrambleQueue(bs);
-		tickets = Tickets(bs);
-
 		matchIsLive = bs.read_bool();
+
+		if (matchIsLive)
+		{
+			// restartQueue = RestartQueue(bs);
+			// vetoQueue = VetoQueue(bs);
+			// scrambleQueue = ScrambleQueue(bs);
+			tickets = Tickets(bs);
+		}
+		else
+		{
+			readyQueue = ReadyQueue(bs);
+		}
 	}
 
 	void ReceivedTeams()
 	{
 		readyQueue.Clear();
 		scrambleQueue.Clear();
-
-		if (isServer())
-		{
-			LoadNextMap();
-		}
+		LoadNextMap();
+		SyncTeams();
 	}
 
 	void StartMatch()
 	{
 		matchIsLive = true;
-		readyQueue.Clear();
 
-		if (isServer())
-		{
-			LoadNextMap();
-			tcpr("<gather> started");
-		}
-
-		if (isClient())
-		{
-			client_AddToChat("Match begun!", SColor(255, 255, 0, 0));
-		}
+		LoadNextMap();
+		tcpr("<gather> started");
+		SendMessage("Match begun!", ConsoleColour::CRAZY);
 	}
 
 	void EndMatch()
@@ -80,17 +76,11 @@ shared class GatherMatch
 		CRules@ rules = getRules();
 		rules.clear("blue_team");
 		rules.clear("red_team");
+		SyncTeams();
 
-		if (isServer())
-		{
-			u8 winningTeam = getRules().getTeamWon();
-			tcpr("<gather> ended " + winningTeam);
-		}
-
-		if (isClient())
-		{
-			client_AddToChat("Match ended!", SColor(255, 255, 0, 0));
-		}
+		u8 winningTeam = getRules().getTeamWon();
+		tcpr("<gather> ended " + winningTeam);
+		SendMessage("Match ended!", ConsoleColour::CRAZY);
 	}
 
 	bool isInProgress()
@@ -237,12 +227,63 @@ shared class GatherMatch
 
 	void Serialize(CBitStream@ bs)
 	{
-		readyQueue.Serialize(bs);
-		restartQueue.Serialize(bs);
-		vetoQueue.Serialize(bs);
-		scrambleQueue.Serialize(bs);
-		tickets.Serialize(bs);
-
 		bs.write_bool(matchIsLive);
+
+		if (matchIsLive)
+		{
+			// restartQueue.Serialize(bs);
+			// vetoQueue.Serialize(bs);
+			// scrambleQueue.Serialize(bs);
+			tickets.Serialize(bs);
+		}
+		else
+		{
+			readyQueue.Serialize(bs);
+		}
+	}
+
+	void DeserializeTeams(CBitStream@ bs)
+	{
+		uint blueCount = bs.read_u32();
+		string[] blueTeam(blueCount);
+		for (uint i = 0; i < blueCount; i++)
+		{
+			blueTeam[i] = bs.read_string();
+		}
+
+		uint redCount = bs.read_u32();
+		string[] redTeam(redCount);
+		for (uint i = 0; i < redCount; i++)
+		{
+			redTeam[i] = bs.read_string();
+		}
+
+		CRules@ rules = getRules();
+		rules.set("blue_team", blueTeam);
+		rules.set("red_team", redTeam);
+	}
+
+	private void SyncTeams()
+	{
+		CBitStream bs;
+
+		string[] blueTeam = getBlueTeam();
+		bs.write_u32(blueTeam.length);
+		for (uint i = 0; i < blueTeam.length; i++)
+		{
+			string username = blueTeam[i];
+			bs.write_string(username);
+		}
+
+		string[] redTeam = getRedTeam();
+		bs.write_u32(redTeam.length);
+		for (uint i = 0; i < redTeam.length; i++)
+		{
+			string username = redTeam[i];
+			bs.write_string(username);
+		}
+
+		CRules@ rules = getRules();
+		rules.SendCommand(rules.getCommandID("sync_gather_teams"), bs, true);
 	}
 }
