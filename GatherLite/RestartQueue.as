@@ -4,6 +4,11 @@ shared class RestartQueue
 {
 	private Queue queue;
 
+	RestartQueue(CBitStream@ bs)
+	{
+		queue = Queue(bs);
+	}
+
 	void Add(string username)
 	{
 		if (queue.Add(username))
@@ -57,5 +62,10 @@ shared class RestartQueue
 	{
 		LoadMap(getMap().getMapName());
 		getNet().server_SendMsg("The match has been restarted");
+	}
+
+	void Serialize(CBitStream@ bs)
+	{
+		queue.Serialize(bs);
 	}
 }

@@ -4,6 +4,11 @@ shared class ScrambleQueue
 {
 	private Queue queue;
 
+	ScrambleQueue(CBitStream@ bs)
+	{
+		queue = Queue(bs);
+	}
+
 	void Add(string username)
 	{
 		if (queue.Add(username))
@@ -57,5 +62,10 @@ shared class ScrambleQueue
 	{
 		tcpr("<gather> scramble");
 		getNet().server_SendMsg("The teams have been scrambled");
+	}
+
+	void Serialize(CBitStream@ bs)
+	{
+		queue.Serialize(bs);
 	}
 }

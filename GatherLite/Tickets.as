@@ -4,6 +4,13 @@ shared class Tickets
 	private uint redTickets = 0;
 	private uint ticketsPerPlayer;
 
+	Tickets(CBitStream@ bs)
+	{
+		blueTickets = bs.read_u32();
+		redTickets = bs.read_u32();
+		ticketsPerPlayer = bs.read_u32();
+	}
+
 	void Reset()
 	{
 		uint playerCount = getGatherMatch().getPlayerCount();
@@ -89,5 +96,12 @@ shared class Tickets
 	void LoadConfig(ConfigFile@ cfg)
 	{
 		ticketsPerPlayer = cfg.read_u32("tickets_per_player", 8);
+	}
+
+	void Serialize(CBitStream@ bs)
+	{
+		bs.write_u32(blueTickets);
+		bs.write_u32(redTickets);
+		bs.write_u32(ticketsPerPlayer);
 	}
 }

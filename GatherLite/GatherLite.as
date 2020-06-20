@@ -6,11 +6,14 @@ SColor color(255, 255, 0, 0);
 void onInit(CRules@ this)
 {
 	this.addCommandID("server_message");
+	this.addCommandID("sync_gather_match");
 	onRestart(this);
 }
 
 void onRestart(CRules@ this)
 {
+	if (!isServer()) return;
+
 	this.set_bool("managed teams", true); //core shouldn't try to manage the teams
 
 	GatherMatch@ gatherMatch = getGatherMatch();
@@ -18,7 +21,7 @@ void onRestart(CRules@ this)
 	gatherMatch.vetoQueue.Clear();
 	gatherMatch.tickets.Reset();
 
-	if (gatherMatch.isInProgress() && isServer())
+	if (gatherMatch.isInProgress())
 	{
 		RulesCore@ core;
 		this.get("core", @core);
@@ -41,6 +44,8 @@ void onTCPRDisconnect(CRules@ this)
 
 void onTick(CRules@ this)
 {
+	if (!isServer()) return;
+
 	GatherMatch@ gatherMatch = getGatherMatch();
 
 	if (this.get_bool("gather_teams_set"))
@@ -63,6 +68,11 @@ void onTick(CRules@ this)
 		tcpr("<gather> status " + blueTickets + " " + redTickets);
 		this.set_bool("gather_status", false);
 	}
+
+	//sync gather match to clients
+	CBitStream bs;
+	gatherMatch.Serialize(bs);
+	this.SendCommand(this.getCommandID("sync_gather_match"), bs, true);
 }
 
 void onRender(CRules@ this)
@@ -96,27 +106,20 @@ void onNewPlayerJoin(CRules@ this, CPlayer@ player)
 
 void onPlayerRequestTeamChange(CRules@ this, CPlayer@ player, u8 newTeam)
 {
-	print("a");
 	string username = player.getUsername();
 	GatherMatch@ gatherMatch = getGatherMatch();
 
 	if (gatherMatch.isInProgress())
 	{
-		if (player.isMyPlayer())
-		{
-			client_AddToChat("You cannot change teams while the match is in progress", color);
-		}
+		SendMessage("You cannot change teams while the match is in progress", color, player);
 	}
 	else
 	{
-		if (isServer())
-		{
-			RulesCore@ core;
-			this.get("core", @core);
-			if (core is null) return;
+		RulesCore@ core;
+		this.get("core", @core);
+		if (core is null) return;
 
-			core.ChangePlayerTeam(player, newTeam);
-		}
+		core.ChangePlayerTeam(player, newTeam);
 	}
 }
 
@@ -170,6 +173,8 @@ void onPlayerDie(CRules@ this, CPlayer@ victim, CPlayer@ killer, u8 customData)
 
 void onStateChange(CRules@ this, const u8 oldState)
 {
+	if (!isServer()) return;
+
 	GatherMatch@ gatherMatch = getGatherMatch();
 
 	if (gatherMatch.isLive() && this.isGameOver())
@@ -463,6 +468,14 @@ void onCommand(CRules@ this, u8 cmd, CBitStream@ params)
 		string message = params.read_string();
 		SColor color(params.read_u32());
 		client_AddToChat(message, color);
+	}
+	else if (cmd == this.getCommandID("sync_gather_match"))
+	{
+		if (!isServer())
+		{
+			GatherMatch gatherMatch(params);
+			this.set("gather_match", gatherMatch);
+		}
 	}
 }
 

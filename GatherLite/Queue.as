@@ -2,6 +2,16 @@ shared class Queue
 {
 	private string[] players;
 
+	Queue(CBitStream@ bs)
+	{
+		uint count = bs.read_u32();
+		players.set_length(count);
+		for (uint i = 0; i < count; i++)
+		{
+			players[i] = bs.read_string();
+		}
+	}
+
 	bool Add(string username)
 	{
 		if (!isInQueue(username))
@@ -48,5 +58,14 @@ shared class Queue
 			}
 		}
 		return false;
+	}
+
+	void Serialize(CBitStream@ bs)
+	{
+		bs.write_u32(players.length);
+		for (uint i = 0; i < players.length; i++)
+		{
+			bs.write_string(players[i]);
+		}
 	}
 }

@@ -34,6 +34,17 @@ shared class GatherMatch
 		LoadConfig();
 	}
 
+	GatherMatch(CBitStream@ bs)
+	{
+		readyQueue = ReadyQueue(bs);
+		restartQueue = RestartQueue(bs);
+		vetoQueue = VetoQueue(bs);
+		scrambleQueue = ScrambleQueue(bs);
+		tickets = Tickets(bs);
+
+		matchIsLive = bs.read_bool();
+	}
+
 	void ReceivedTeams()
 	{
 		readyQueue.Clear();
@@ -222,5 +233,16 @@ shared class GatherMatch
 		{
 			warn("Gather config file not found");
 		}
+	}
+
+	void Serialize(CBitStream@ bs)
+	{
+		readyQueue.Serialize(bs);
+		restartQueue.Serialize(bs);
+		vetoQueue.Serialize(bs);
+		scrambleQueue.Serialize(bs);
+		tickets.Serialize(bs);
+
+		bs.write_bool(matchIsLive);
 	}
 }

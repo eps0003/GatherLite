@@ -4,6 +4,11 @@ shared class VetoQueue
 {
 	private Queue queue;
 
+	VetoQueue(CBitStream@ bs)
+	{
+		queue = Queue(bs);
+	}
+
 	void Add(string username)
 	{
 		if (queue.Add(username))
@@ -57,5 +62,10 @@ shared class VetoQueue
 	{
 		LoadNextMap();
 		getNet().server_SendMsg("The map has been changed");
+	}
+
+	void Serialize(CBitStream@ bs)
+	{
+		queue.Serialize(bs);
 	}
 }

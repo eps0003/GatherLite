@@ -4,6 +4,11 @@ shared class ReadyQueue
 {
 	private Queue queue;
 
+	ReadyQueue(CBitStream@ bs)
+	{
+		queue = Queue(bs);
+	}
+
 	void Add(string username)
 	{
 		if (queue.Add(username))
@@ -73,5 +78,10 @@ shared class ReadyQueue
 	private bool isEveryoneReady()
 	{
 		return queue.getCount() >= getTotal();
+	}
+
+	void Serialize(CBitStream@ bs)
+	{
+		queue.Serialize(bs);
 	}
 }
