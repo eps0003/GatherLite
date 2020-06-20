@@ -151,9 +151,12 @@ void onPlayerDie(CRules@ this, CPlayer@ victim, CPlayer@ killer, u8 customData)
 
 		if (tickets <= 0)
 		{
-			Sound::Play("depleted.ogg");
+			if (isClient())
+			{
+				Sound::Play("depleted.ogg");
+			}
 
-			if (!gatherMatch.allPlayersDead(team))
+			if (isServer() && !gatherMatch.allPlayersDead(team))
 			{
 				u8 winTeam = (team + 1) % 2;
 				string winTeamName = this.getTeam(winTeam).getName();
@@ -166,7 +169,10 @@ void onPlayerDie(CRules@ this, CPlayer@ victim, CPlayer@ killer, u8 customData)
 		}
 		else if (tickets <= 5)
 		{
-			Sound::Play("depleting.ogg");
+			if (isClient())
+			{
+				Sound::Play("depleting.ogg");
+			}
 		}
 	}
 }
