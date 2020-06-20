@@ -274,7 +274,7 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 	{
 		if (!player.isMod())
 		{
-			SendMessage("Only a mod can force start a match", ConsoleColour::ERROR, player);
+			SendMessage("Only an admin can force start a match", ConsoleColour::ERROR, player);
 		}
 		else if (gatherMatch.isLive())
 		{
@@ -289,7 +289,7 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 	{
 		if (!player.isMod())
 		{
-			SendMessage("Only a mod can force end a match", ConsoleColour::ERROR, player);
+			SendMessage("Only an admin can force end a match", ConsoleColour::ERROR, player);
 		}
 		else
 		{
@@ -315,7 +315,7 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 	{
 		if (!player.isMod())
 		{
-			SendMessage("Only a mod can clear votes to restart", ConsoleColour::ERROR, player);
+			SendMessage("Only an admin can clear votes to restart", ConsoleColour::ERROR, player);
 		}
 		else if (!gatherMatch.restartQueue.hasVotes())
 		{
@@ -386,7 +386,7 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 	{
 		if (!player.isMod())
 		{
-			SendMessage("Only a mod can clear map vetoes", ConsoleColour::ERROR, player);
+			SendMessage("Only an admin can clear map vetoes", ConsoleColour::ERROR, player);
 		}
 		else if (!gatherMatch.vetoQueue.hasVotes())
 		{
@@ -421,7 +421,7 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 	{
 		if (!player.isMod())
 		{
-			SendMessage("Only a mod can clear votes to scramble teams", ConsoleColour::ERROR, player);
+			SendMessage("Only an admin can clear votes to scramble teams", ConsoleColour::ERROR, player);
 		}
 		else if (!gatherMatch.scrambleQueue.hasVotes())
 		{
@@ -452,7 +452,7 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 	{
 		if (!player.isMod())
 		{
-			SendMessage("Only a mod can set the tickets", ConsoleColour::ERROR, player);
+			SendMessage("Only an admin can set the tickets", ConsoleColour::ERROR, player);
 		}
 		else if (args.length < 1)
 		{
@@ -469,7 +469,7 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 	{
 		if (!player.isMod())
 		{
-			SendMessage("Only a mod can set the tickets", ConsoleColour::ERROR, player);
+			SendMessage("Only an admin can set the tickets", ConsoleColour::ERROR, player);
 		}
 		else if (args.length < 1)
 		{
@@ -486,7 +486,7 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 	{
 		if (!player.isMod())
 		{
-			SendMessage("Only a mod can set the tickets", ConsoleColour::ERROR, player);
+			SendMessage("Only an admin can set the tickets", ConsoleColour::ERROR, player);
 		}
 		else if (args.length < 1)
 		{
@@ -504,7 +504,7 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 	{
 		if (!player.isMod())
 		{
-			SendMessage("Only a mod can clear votes", ConsoleColour::ERROR, player);
+			SendMessage("Only an admin can clear votes", ConsoleColour::ERROR, player);
 		}
 		else
 		{
