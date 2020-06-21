@@ -13,9 +13,16 @@ shared class ScrambleQueue
 	{
 		if (queue.Add(username))
 		{
+			bool enoughVotes = hasEnoughVotes();
+
+			if (!enoughVotes && queue.getCount() == 1)
+			{
+				SendMessage(username + " wants to scramble teams. Type !scramble if you agree", ConsoleColour::CRAZY);
+			}
+
 			SendMessage(username + " has voted to scramble teams (" + queue.getCount() + "/" + getTotal() + ")", ConsoleColour::GAME);
 
-			if (hasEnoughVotes())
+			if (enoughVotes)
 			{
 				Scramble();
 			}
@@ -57,7 +64,7 @@ shared class ScrambleQueue
 
 	private uint getTotal()
 	{
-		return Maths::Max(1, getGatherMatch().getPlayerCount() * 0.6f);
+		return Maths::Max(1, getGatherMatch().getPlayerCount() * 2);
 	}
 
 	private bool hasEnoughVotes()

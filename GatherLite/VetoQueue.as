@@ -20,6 +20,10 @@ shared class VetoQueue
 			{
 				LoadNextMap();
 			}
+			else if (queue.getCount() == 1)
+			{
+				SendMessage(username + " wants a different map. Type !veto if you agree", ConsoleColour::CRAZY);
+			}
 
 			SendMessage(username + " has vetoed the map (" + count + "/" + getTotal() + ")", ConsoleColour::GAME);
 
@@ -65,7 +69,7 @@ shared class VetoQueue
 
 	private uint getTotal()
 	{
-		return Maths::Max(1, getGatherMatch().getPlayerCount() * 0.6f);
+		return Maths::Max(1, getGatherMatch().getPlayerCount() * 2);
 	}
 
 	private bool hasEnoughVotes()
