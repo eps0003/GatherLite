@@ -346,7 +346,7 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 			if (ready.length > 0)
 			{
 				string text = listUsernames(ready);
-				SendMessage(ready.length + " Ready: " + text, ConsoleColour::INFO, player);
+				SendMessage("Ready: " + text, ConsoleColour::INFO, player);
 			}
 			else
 			{
@@ -366,7 +366,7 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 			if (notReady.length > 0)
 			{
 				string text = listUsernames(notReady);
-				SendMessage(notReady.length + " Not ready: " + text, ConsoleColour::INFO, player);
+				SendMessage("Not ready: " + text, ConsoleColour::INFO, player);
 			}
 			else
 			{

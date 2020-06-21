@@ -89,9 +89,9 @@ shared class ReadyQueue
 		Vec2f pos;
 
 		pos = Vec2f(140, 200);
-		GUI::DrawTextCentered("Not Ready", pos, color_white);
-
 		string[] notReadyPlayers = getNotReadyPlayers();
+		GUI::DrawTextCentered("Not Ready (" + notReadyPlayers.length + ")", pos, color_white);
+
 		for (uint i = 0; i < notReadyPlayers.length; i++)
 		{
 			string username = notReadyPlayers[i];
@@ -103,9 +103,9 @@ shared class ReadyQueue
 		}
 
 		pos = Vec2f(getScreenWidth() - 140, 200);
-		GUI::DrawTextCentered("Ready", pos, color_white);
-
 		string[] readyPlayers = getReadyPlayers();
+		GUI::DrawTextCentered("Ready (" + readyPlayers.length + ")", pos, color_white);
+
 		for (uint i = 0; i < readyPlayers.length; i++)
 		{
 			string username = readyPlayers[i];
