@@ -52,6 +52,13 @@ shared class GatherMatch
 		}
 	}
 
+	void UpdatedTeams()
+	{
+		print("UPDATED TEAMS");
+		MovePlayersToTeams();
+		SyncTeams();
+	}
+
 	void ReceivedTeams()
 	{
 		readyQueue.Clear();
@@ -234,6 +241,28 @@ shared class GatherMatch
 		else if (isInProgress())
 		{
 			readyQueue.RenderHUD();
+		}
+	}
+
+	void MovePlayersToTeams()
+	{
+		if (isInProgress())
+		{
+			RulesCore@ core;
+			getRules().get("core", @core);
+			if (core is null) return;
+
+			for (uint i = 0; i < getPlayersCount(); i++)
+			{
+				CPlayer@ player = getPlayer(i);
+				string username = player.getUsername();
+				u8 team = getTeamNum(username);
+
+				if (player.getTeamNum() != team)
+				{
+					core.ChangePlayerTeam(player, team);
+				}
+			}
 		}
 	}
 

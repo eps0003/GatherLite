@@ -21,21 +21,7 @@ void onRestart(CRules@ this)
 	gatherMatch.restartQueue.Clear();
 	gatherMatch.vetoQueue.Clear();
 	gatherMatch.tickets.Reset();
-
-	if (gatherMatch.isInProgress())
-	{
-		RulesCore@ core;
-		this.get("core", @core);
-		if (core is null) return;
-
-		for (uint i = 0; i < getPlayersCount(); i++)
-		{
-			CPlayer@ player = getPlayer(i);
-			string username = player.getUsername();
-			u8 team = gatherMatch.getTeamNum(username);
-			core.ChangePlayerTeam(player, team);
-		}
-	}
+	gatherMatch.MovePlayersToTeams();
 }
 
 void onTCPRDisconnect(CRules@ this)
@@ -53,6 +39,12 @@ void onTick(CRules@ this)
 	{
 		gatherMatch.ReceivedTeams();
 		this.set_bool("gather_teams_set", false);
+	}
+
+	if (this.get_bool("gather_teams_updated"))
+	{
+		gatherMatch.UpdatedTeams();
+		this.set_bool("gather_teams_updated", false);
 	}
 
 	if (this.get_bool("gather_end_match"))
