@@ -152,7 +152,7 @@ void onPlayerDie(CRules@ this, CPlayer@ victim, CPlayer@ killer, u8 customData)
 				Sound::Play("depleted.ogg");
 			}
 
-			if (isServer() && !gatherMatch.allPlayersDead(team))
+			if (isServer() && gatherMatch.allPlayersDead(team))
 			{
 				u8 winTeam = (team + 1) % 2;
 				string winTeamName = this.getTeam(winTeam).getName();
