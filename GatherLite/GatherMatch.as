@@ -84,7 +84,7 @@ shared class GatherMatch
 
 	void EndMatch()
 	{
-		if (isLive())
+		if (isInProgress())
 		{
 			matchIsLive = false;
 
