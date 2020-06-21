@@ -13,11 +13,19 @@ shared class VetoQueue
 	{
 		if (queue.Add(username))
 		{
-			SendMessage(username + " has vetoed the map (" + queue.getCount() + "/" + getTotal() + ")", ConsoleColour::GAME);
+			bool enoughVotes = hasEnoughVotes();
+			uint count = queue.getCount();
 
-			if (hasEnoughVotes())
+			if (enoughVotes)
 			{
-				Veto();
+				LoadNextMap();
+			}
+
+			SendMessage(username + " has vetoed the map (" + count + "/" + getTotal() + ")", ConsoleColour::GAME);
+
+			if (enoughVotes)
+			{
+				SendMessage("The map has been changed", ConsoleColour::CRAZY);
 			}
 		}
 		else
@@ -63,12 +71,6 @@ shared class VetoQueue
 	private bool hasEnoughVotes()
 	{
 		return queue.getCount() >= getTotal();
-	}
-
-	private void Veto()
-	{
-		LoadNextMap();
-		SendMessage("The map has been changed", ConsoleColour::CRAZY);
 	}
 
 	void Serialize(CBitStream@ bs)

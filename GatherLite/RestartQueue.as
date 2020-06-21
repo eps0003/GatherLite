@@ -13,11 +13,19 @@ shared class RestartQueue
 	{
 		if (queue.Add(username))
 		{
-			SendMessage(username + " has voted to restart (" + queue.getCount() + "/" + getTotal() + ")", ConsoleColour::GAME);
+			bool enoughVotes = hasEnoughVotes();
+			uint count = queue.getCount();
 
-			if (hasEnoughVotes())
+			if (enoughVotes)
 			{
-				Restart();
+				LoadMap(getMap().getMapName());
+			}
+
+			SendMessage(username + " has voted to restart (" + count + "/" + getTotal() + ")", ConsoleColour::GAME);
+
+			if (enoughVotes)
+			{
+				SendMessage("The match has been restarted", ConsoleColour::CRAZY);
 			}
 		}
 		else
@@ -63,12 +71,6 @@ shared class RestartQueue
 	private bool hasEnoughVotes()
 	{
 		return queue.getCount() >= getTotal();
-	}
-
-	private void Restart()
-	{
-		LoadMap(getMap().getMapName());
-		SendMessage("The match has been restarted", ConsoleColour::CRAZY);
 	}
 
 	void Serialize(CBitStream@ bs)
