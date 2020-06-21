@@ -69,7 +69,7 @@ shared class VetoQueue
 
 	private uint getTotal()
 	{
-		return Maths::Max(1, getGatherMatch().getPlayerCount() * 2);
+		return Maths::Max(1, getGatherMatch().getPlayerCount() * 0.6f);
 	}
 
 	private bool hasEnoughVotes()
