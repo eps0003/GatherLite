@@ -24,7 +24,7 @@ void Config(CTFCore@ this)
 	ConfigFile cfg = ConfigFile(configstr);
 
 	//how long to wait for everyone to spawn in?
-	s32 warmUpTimeSeconds = cfg.read_s32("warmup_time", 30);
+	s32 warmUpTimeSeconds = 100; //cfg.read_s32("warmup_time", 30);
 	this.warmUpTime = (getTicksASecond() * warmUpTimeSeconds);
 
 	s32 stalemateTimeSeconds = cfg.read_s32("stalemate_time", 30);
@@ -47,7 +47,7 @@ void Config(CTFCore@ this)
 	this.scramble_teams = cfg.read_bool("scramble_teams", true);
 
 	//spawn after death time
-	this.spawnTime = (getTicksASecond() * cfg.read_s32("spawn_time", 15));
+	this.spawnTime = (getTicksASecond() * 15); //cfg.read_s32("spawn_time", 15));
 
 }
 
