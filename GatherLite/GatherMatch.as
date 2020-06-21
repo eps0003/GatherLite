@@ -227,9 +227,13 @@ shared class GatherMatch
 
 			Vec2f pos(440, getScreenHeight() - 100);
 
-			GUI::DrawTextCentered("Spawns Remaining:", pos, color_white);
+			GUI::DrawTextCentered("Spawns Remaining", pos, color_white);
 			GUI::DrawTextCentered("" + blueTickets, pos + Vec2f(-30, 20), blueColor);
 			GUI::DrawTextCentered("" + redTickets, pos + Vec2f(30, 20), redColor);
+		}
+		else if (isInProgress())
+		{
+			readyQueue.RenderHUD();
 		}
 	}
 

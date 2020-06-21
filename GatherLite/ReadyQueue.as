@@ -82,6 +82,41 @@ shared class ReadyQueue
 		return queue.getCount() >= getTotal();
 	}
 
+	void RenderHUD()
+	{
+		CRules@ rules = getRules();
+		GatherMatch@ gatherMatch = getGatherMatch();
+		Vec2f pos;
+
+		pos = Vec2f(140, 200);
+		GUI::DrawTextCentered("Not Ready", pos, color_white);
+
+		string[] notReadyPlayers = getNotReadyPlayers();
+		for (uint i = 0; i < notReadyPlayers.length; i++)
+		{
+			string username = notReadyPlayers[i];
+			u8 team = gatherMatch.getTeamNum(username);
+
+			int y = 20 + i * 20;
+			SColor color = rules.getTeam(team).color;
+			GUI::DrawTextCentered(username, pos + Vec2f(0, y), color);
+		}
+
+		pos = Vec2f(getScreenWidth() - 140, 200);
+		GUI::DrawTextCentered("Ready", pos, color_white);
+
+		string[] readyPlayers = getReadyPlayers();
+		for (uint i = 0; i < readyPlayers.length; i++)
+		{
+			string username = readyPlayers[i];
+			u8 team = gatherMatch.getTeamNum(username);
+
+			int y = 20 + i * 20;
+			SColor color = rules.getTeam(team).color;
+			GUI::DrawTextCentered(username, pos + Vec2f(0, y), color);
+		}
+	}
+
 	void Serialize(CBitStream@ bs)
 	{
 		queue.Serialize(bs);
