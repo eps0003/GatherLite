@@ -54,7 +54,6 @@ shared class GatherMatch
 
 	void UpdatedTeams()
 	{
-		print("UPDATED TEAMS");
 		MovePlayersToTeams();
 		SyncTeams();
 	}
