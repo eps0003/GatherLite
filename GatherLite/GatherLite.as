@@ -281,6 +281,8 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 		}
 		else
 		{
+			LoadNextMap();
+			SendMessage(username + " has force started the match", ConsoleColour::CRAZY);
 			gatherMatch.StartMatch();
 		}
 	}

@@ -13,9 +13,17 @@ shared class ReadyQueue
 	{
 		if (queue.Add(username))
 		{
+			bool everyoneReady = isEveryoneReady();
+			uint count = queue.getCount();
+
+			if (everyoneReady)
+			{
+				LoadNextMap();
+			}
+
 			SendMessage(username + " is now ready (" + queue.getCount() + "/" + getTotal() + ")", ConsoleColour::GAME);
 
-			if (isEveryoneReady())
+			if (everyoneReady)
 			{
 				getGatherMatch().StartMatch();
 			}

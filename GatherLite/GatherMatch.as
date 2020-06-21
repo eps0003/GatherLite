@@ -84,7 +84,6 @@ shared class GatherMatch
 	{
 		matchIsLive = true;
 
-		LoadNextMap();
 		tcpr("<gather> started");
 		SendMessage("===================== Match begun! ======================", ConsoleColour::CRAZY);
 	}
