@@ -274,6 +274,18 @@ shared class GatherMatch
 		tcpr("<gather> scramble");
 	}
 
+	void ResetScoreboard()
+	{
+		for (uint i = 0; i < getPlayersCount(); i++)
+		{
+			CPlayer@ player = getPlayer(i);
+
+			player.setKills(0);
+			player.setDeaths(0);
+			player.setAssists(0);
+		}
+	}
+
 	void LoadConfig()
 	{
 		ConfigFile@ cfg = ConfigFile();

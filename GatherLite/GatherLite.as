@@ -22,6 +22,7 @@ void onRestart(CRules@ this)
 	gatherMatch.vetoQueue.Clear();
 	gatherMatch.tickets.Reset();
 	gatherMatch.MovePlayersToTeams();
+	gatherMatch.ResetScoreboard();
 }
 
 void onTCPRDisconnect(CRules@ this)
