@@ -79,6 +79,10 @@ void onRender(CRules@ this)
 
 void onNewPlayerJoin(CRules@ this, CPlayer@ player)
 {
+	SendMessage("=================== Welcome to Gather! ====================", ConsoleColour::CRAZY, player);
+	SendMessage("Gather is a organised CTF event involving the use of an automated Discord bot to organise matches. Join the Discord in the server description to participate!", ConsoleColour::CRAZY, player);
+	SendMessage("====================================================", ConsoleColour::CRAZY, player);
+
 	RulesCore@ core;
 	this.get("core", @core);
 	if (core is null) return;
@@ -92,15 +96,17 @@ void onNewPlayerJoin(CRules@ this, CPlayer@ player)
 
 		u8 team = gatherMatch.getTeamNum(username);
 		core.ChangePlayerTeam(player, team);
+
+		if (gatherMatch.isLive() && gatherMatch.isParticipating(username))
+		{
+			string teamName = this.getTeam(team).getName();
+			SendMessage(username + ", a missing player for " + teamName + ", has returned", ConsoleColour::CRAZY);
+		}
 	}
 	else if (player.getTeamNum() != this.getSpectatorTeamNum())
 	{
 		core.ChangePlayerTeam(player, getSmallestTeam(core.teams));
 	}
-
-	SendMessage("=================== Welcome to Gather! ====================", ConsoleColour::CRAZY, player);
-	SendMessage("Gather is a organised CTF event involving the use of an automated Discord bot to organise matches. Join the Discord in the server description to participate!", ConsoleColour::CRAZY, player);
-	SendMessage("====================================================", ConsoleColour::CRAZY, player);
 }
 
 void onPlayerRequestTeamChange(CRules@ this, CPlayer@ player, u8 newTeam)
@@ -124,18 +130,22 @@ void onPlayerRequestTeamChange(CRules@ this, CPlayer@ player, u8 newTeam)
 
 void onPlayerLeave(CRules@ this, CPlayer@ player)
 {
+	if (!isServer()) return;
+
 	string username = player.getUsername();
 	GatherMatch@ gatherMatch = getGatherMatch();
+
+	if (gatherMatch.isLive() && gatherMatch.isParticipating(username))
+	{
+		u8 team = gatherMatch.getTeamNum(username);
+		string teamName = this.getTeam(team).getName();
+		SendMessage(username + " has left the server while playing for " + teamName, ConsoleColour::CRAZY);
+	}
 
 	//check before removing to suppress the 'already removed' response
 	if (gatherMatch.readyQueue.isReady(username))
 	{
 		gatherMatch.readyQueue.Remove(username);
-	}
-
-	if (gatherMatch.restartQueue.hasVoted(username))
-	{
-		gatherMatch.restartQueue.Remove(username);
 	}
 }
 

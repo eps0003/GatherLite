@@ -62,6 +62,7 @@ shared class GatherMatch
 	{
 		readyQueue.Clear();
 		scrambleQueue.Clear();
+
 		LoadNextMap();
 		SyncTeams();
 
@@ -82,6 +83,9 @@ shared class GatherMatch
 	void StartMatch()
 	{
 		matchIsLive = true;
+
+		readyQueue.Clear();
+		scrambleQueue.Clear();
 
 		tcpr("<gather> started");
 		SendMessage("===================== Match begun! ======================", ConsoleColour::CRAZY);
