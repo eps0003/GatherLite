@@ -39,16 +39,19 @@ shared class GatherMatch
 	{
 		matchIsLive = bs.read_bool();
 
-		if (matchIsLive)
+		if (isInProgress())
 		{
-			// restartQueue = RestartQueue(bs);
-			// vetoQueue = VetoQueue(bs);
-			// scrambleQueue = ScrambleQueue(bs);
-			tickets = Tickets(bs);
-		}
-		else
-		{
-			readyQueue = ReadyQueue(bs);
+			if (matchIsLive)
+			{
+				// restartQueue = RestartQueue(bs);
+				// vetoQueue = VetoQueue(bs);
+				// scrambleQueue = ScrambleQueue(bs);
+				tickets = Tickets(bs);
+			}
+			else
+			{
+				readyQueue = ReadyQueue(bs);
+			}
 		}
 	}
 
@@ -307,16 +310,19 @@ shared class GatherMatch
 	{
 		bs.write_bool(matchIsLive);
 
-		if (matchIsLive)
+		if (isInProgress())
 		{
-			// restartQueue.Serialize(bs);
-			// vetoQueue.Serialize(bs);
-			// scrambleQueue.Serialize(bs);
-			tickets.Serialize(bs);
-		}
-		else
-		{
-			readyQueue.Serialize(bs);
+			if (matchIsLive)
+			{
+				// restartQueue.Serialize(bs);
+				// vetoQueue.Serialize(bs);
+				// scrambleQueue.Serialize(bs);
+				tickets.Serialize(bs);
+			}
+			else
+			{
+				readyQueue.Serialize(bs);
+			}
 		}
 	}
 

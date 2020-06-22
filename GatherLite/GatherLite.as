@@ -64,7 +64,7 @@ void onTick(CRules@ this)
 	}
 
 	//sync gather match to clients
-	if (!isClient() && gatherMatch.isInProgress())
+	if (!isClient())
 	{
 		CBitStream bs;
 		gatherMatch.Serialize(bs);
