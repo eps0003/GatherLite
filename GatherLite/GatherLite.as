@@ -354,6 +354,17 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 			SendMessage(username + " has restarted the match", ConsoleColour::CRAZY);
 		}
 	}
+	else if (command == "fullrestart")
+	{
+		if (!player.isMod())
+		{
+			SendMessage("Only an admin can full restart the match", ConsoleColour::ERROR, player);
+		}
+		else
+		{
+			gatherMatch.ReceivedTeams();
+		}
+	}
 	else if (command == "wr" || command == "whoready")
 	{
 		if (gatherMatch.isLive())

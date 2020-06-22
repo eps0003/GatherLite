@@ -63,6 +63,8 @@ shared class GatherMatch
 
 	void ReceivedTeams()
 	{
+		matchIsLive = false;
+
 		readyQueue.Clear();
 		scrambleQueue.Clear();
 
