@@ -91,18 +91,18 @@ shared class GatherMatch
 	{
 		if (isInProgress())
 		{
-			matchIsLive = false;
-
 			CRules@ rules = getRules();
 			rules.clear("blue_team");
 			rules.clear("red_team");
 			SyncTeams();
 
-			u8 winningTeam = getRules().getTeamWon();
-			uint duration = rules.isMatchRunning() ? (getGameTime() - rules.get_u32("start_time")) : 0;
+			u8 winningTeam = rules.getTeamWon();
+			uint duration = (isLive() && !rules.isWarmup()) ? (getGameTime() - rules.get_u32("start_time")) : 0;
 			string[] mapPath = getMap().getMapName().split("/");
 			string map = mapPath[mapPath.length - 1];
 			map = map.substr(0, map.length - 4);
+
+			matchIsLive = false;
 
 			tcpr("<gather> ended " + winningTeam + " " + duration + " " + map);
 			SendMessage("===================== Match ended! ======================", ConsoleColour::CRAZY);
@@ -315,7 +315,7 @@ shared class GatherMatch
 		rules.set("red_team", redTeam);
 	}
 
-	private void SyncTeams()
+	void SyncTeams()
 	{
 		CBitStream bs;
 
