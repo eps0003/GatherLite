@@ -330,6 +330,19 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 			SendMessage(username + " has cleared all votes to restart", ConsoleColour::CRAZY);
 		}
 	}
+	else if (command == "forcerestart")
+	{
+		if (!player.isMod())
+		{
+			SendMessage("Only an admin can restart the match", ConsoleColour::ERROR, player);
+		}
+		else
+		{
+			gatherMatch.restartQueue.Clear();
+			gatherMatch.RestartMap();
+			SendMessage(username + " has restarted the match", ConsoleColour::CRAZY);
+		}
+	}
 	else if (command == "wr" || command == "whoready")
 	{
 		if (gatherMatch.isLive())
@@ -401,6 +414,19 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 			SendMessage(username + " has cleared all map vetoes", ConsoleColour::CRAZY);
 		}
 	}
+	else if (command == "forceveto")
+	{
+		if (!player.isMod())
+		{
+			SendMessage("Only an admin can change the map", ConsoleColour::ERROR, player);
+		}
+		else
+		{
+			gatherMatch.vetoQueue.Clear();
+			LoadNextMap();
+			SendMessage(username + " has changed the map", ConsoleColour::CRAZY);
+		}
+	}
 	else if (command == "rsub" || command == "reqsub" || command == "requestsub")
 	{
 
@@ -434,6 +460,23 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 		{
 			gatherMatch.scrambleQueue.Clear();
 			SendMessage(username + " has cleared all votes to scramble teams", ConsoleColour::CRAZY);
+		}
+	}
+	else if (command == "forcescramble")
+	{
+		if (!player.isMod())
+		{
+			SendMessage("Only an admin can scramble teams", ConsoleColour::ERROR, player);
+		}
+		else if (gatherMatch.isLive())
+		{
+			SendMessage("You cannot scramble teams after the match has started", ConsoleColour::ERROR, player);
+		}
+		else
+		{
+			gatherMatch.scrambleQueue.Clear();
+			gatherMatch.ScrambleTeams();
+			SendMessage(username + " has scrambled the teams", ConsoleColour::CRAZY);
 		}
 	}
 	else if (command == "freeze" || command == "pause" || command == "wait")

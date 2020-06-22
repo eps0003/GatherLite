@@ -264,6 +264,16 @@ shared class GatherMatch
 		}
 	}
 
+	void RestartMap()
+	{
+		LoadMap(getMap().getMapName());
+	}
+
+	void ScrambleTeams()
+	{
+		tcpr("<gather> scramble");
+	}
+
 	void LoadConfig()
 	{
 		ConfigFile@ cfg = ConfigFile();

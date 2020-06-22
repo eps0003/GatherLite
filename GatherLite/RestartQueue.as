@@ -18,7 +18,7 @@ shared class RestartQueue
 
 			if (enoughVotes)
 			{
-				LoadMap(getMap().getMapName());
+				getGatherMatch().RestartMap();
 			}
 			else if (queue.getCount() == 1)
 			{

@@ -24,7 +24,8 @@ shared class ScrambleQueue
 
 			if (enoughVotes)
 			{
-				Scramble();
+				getGatherMatch().ScrambleTeams();
+				SendMessage("The teams have been scrambled", ConsoleColour::CRAZY);
 			}
 		}
 		else
@@ -70,12 +71,6 @@ shared class ScrambleQueue
 	private bool hasEnoughVotes()
 	{
 		return queue.getCount() >= getTotal();
-	}
-
-	private void Scramble()
-	{
-		tcpr("<gather> scramble");
-		SendMessage("The teams have been scrambled", ConsoleColour::CRAZY);
 	}
 
 	void Serialize(CBitStream@ bs)
