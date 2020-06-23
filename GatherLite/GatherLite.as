@@ -27,7 +27,7 @@ void onRestart(CRules@ this)
 
 void onTCPRDisconnect(CRules@ this)
 {
-	getGatherMatch().EndMatch();
+	getGatherMatch().EndMatch(MatchEndCause::Disconnected);
 }
 
 void onTick(CRules@ this)
@@ -50,7 +50,7 @@ void onTick(CRules@ this)
 
 	if (this.get_bool("gather_end_match"))
 	{
-		gatherMatch.EndMatch();
+		gatherMatch.EndMatch(MatchEndCause::Forced);
 		this.set_bool("gather_end_match", false);
 	}
 
@@ -174,6 +174,8 @@ void onPlayerDie(CRules@ this, CPlayer@ victim, CPlayer@ killer, u8 customData)
 				this.SetCurrentState(GAME_OVER);
 				this.SetGlobalMessage("{WINNING_TEAM} wins the game!");
 				this.AddGlobalMessageReplacement("WINNING_TEAM", winTeamName);
+
+				gatherMatch.EndMatch(MatchEndCause::Tickets);
 			}
 		}
 		else if (tickets <= 5)
@@ -200,7 +202,7 @@ void onStateChange(CRules@ this, const u8 oldState)
 		}
 		else if (this.isGameOver())
 		{
-			gatherMatch.EndMatch();
+			gatherMatch.EndMatch(MatchEndCause::CapturedFlags);
 		}
 	}
 }
@@ -307,7 +309,7 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 		}
 		else
 		{
-			gatherMatch.EndMatch();
+			gatherMatch.EndMatch(MatchEndCause::Forced);
 		}
 	}
 	else if (command == "restart")

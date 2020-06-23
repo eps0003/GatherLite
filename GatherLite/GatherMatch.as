@@ -5,6 +5,14 @@
 #include "ScrambleQueue.as"
 #include "Tickets.as"
 
+shared enum MatchEndCause
+{
+	Disconnected,
+	Forced,
+	CapturedFlags,
+	Tickets
+}
+
 shared GatherMatch@ getGatherMatch()
 {
 	CRules@ rules = getRules();
@@ -96,7 +104,7 @@ shared class GatherMatch
 		SendMessage("===================== Match begun! ======================", ConsoleColour::CRAZY);
 	}
 
-	void EndMatch()
+	void EndMatch(MatchEndCause cause)
 	{
 		if (isInProgress())
 		{
@@ -107,13 +115,15 @@ shared class GatherMatch
 
 			u8 winningTeam = rules.getTeamWon();
 			uint duration = (isLive() && !rules.isWarmup()) ? (getGameTime() - rules.get_u32("start_time")) : 0;
+			uint blueTickets = tickets.getBlueTickets();
+			uint redTickets = tickets.getRedTickets();
 			string[] mapPath = getMap().getMapName().split("/");
 			string map = mapPath[mapPath.length - 1];
 			map = map.substr(0, map.length - 4);
 
 			matchIsLive = false;
 
-			tcpr("<gather> ended " + winningTeam + " " + duration + " " + map);
+			tcpr("<gather> ended " + cause + " " + winningTeam + " " + duration + " " + map + " " + blueTickets + " " + redTickets);
 			SendMessage("===================== Match ended! ======================", ConsoleColour::CRAZY);
 		}
 	}
