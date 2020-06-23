@@ -130,20 +130,30 @@ void onPlayerRequestTeamChange(CRules@ this, CPlayer@ player, u8 newTeam)
 
 void onPlayerLeave(CRules@ this, CPlayer@ player)
 {
-	if (!isServer()) return;
-
 	string username = player.getUsername();
 	GatherMatch@ gatherMatch = getGatherMatch();
 
-	if (gatherMatch.isLive() && gatherMatch.isParticipating(username))
+	if (gatherMatch.isParticipating(username))
 	{
-		u8 team = gatherMatch.getTeamNum(username);
-		string teamName = this.getTeam(team).getName();
-		SendMessage(username + " has left the server while playing for " + teamName, ConsoleColour::CRAZY);
+		//announce that participant has left mid match
+		if (isServer() && gatherMatch.isLive())
+		{
+			u8 team = gatherMatch.getTeamNum(username);
+			string teamName = this.getTeam(team).getName();
+			SendMessage(username + " has left the server while playing for " + teamName, ConsoleColour::CRAZY);
+		}
+
+		//play ticket warning sounds
+		CBlob@ blob = player.getBlob();
+		bool isAlive = blob !is null && !blob.hasTag("dead");
+		if (isClient() && gatherMatch.tickets.canDecrementTickets() && isAlive)
+		{
+			gatherMatch.tickets.PlaySound(player);
+		}
 	}
 
 	//check before removing to suppress the 'already removed' response
-	if (gatherMatch.readyQueue.isReady(username))
+	if (isServer() && gatherMatch.readyQueue.isReady(username))
 	{
 		gatherMatch.readyQueue.Remove(username);
 	}
@@ -158,32 +168,24 @@ void onPlayerDie(CRules@ this, CPlayer@ victim, CPlayer@ killer, u8 customData)
 		u8 team = victim.getTeamNum();
 		uint tickets = gatherMatch.tickets.getTickets(team);
 
-		if (tickets <= 0)
+		//play ticket warning sounds
+		if (isClient())
 		{
-			if (isClient())
-			{
-				Sound::Play("depleted.ogg");
-			}
-
-			if (isServer() && gatherMatch.allPlayersDead(team))
-			{
-				u8 winTeam = (team + 1) % 2;
-				string winTeamName = this.getTeam(winTeam).getName();
-
-				this.SetTeamWon(winTeam);
-				this.SetCurrentState(GAME_OVER);
-				this.SetGlobalMessage("{WINNING_TEAM} wins the game!");
-				this.AddGlobalMessageReplacement("WINNING_TEAM", winTeamName);
-
-				gatherMatch.EndMatch(MatchEndCause::Tickets);
-			}
+			gatherMatch.tickets.PlaySound(victim);
 		}
-		else if (tickets <= 5)
+
+		//end game if no more tickets
+		if (isServer() && tickets <= 0 && gatherMatch.allPlayersDead(team))
 		{
-			if (isClient())
-			{
-				Sound::Play("depleting.ogg");
-			}
+			u8 winTeam = (team + 1) % 2;
+			string winTeamName = this.getTeam(winTeam).getName();
+
+			this.SetTeamWon(winTeam);
+			this.SetCurrentState(GAME_OVER);
+			this.SetGlobalMessage("{WINNING_TEAM} wins the game!");
+			this.AddGlobalMessageReplacement("WINNING_TEAM", winTeamName);
+
+			gatherMatch.EndMatch(MatchEndCause::Tickets);
 		}
 	}
 }

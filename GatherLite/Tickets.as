@@ -93,6 +93,27 @@ shared class Tickets
 		}
 	}
 
+	void PlaySound(CPlayer@ victim)
+	{
+		//this is most likely called before victim blob is removed, if they were alive
+
+		GatherMatch@ gatherMatch = getGatherMatch();
+		u8 team = victim.getTeamNum();
+		uint tickets = getTickets(team);
+
+		int calcTickets = tickets - gatherMatch.getDeadCount(team);
+		uint teamSize = gatherMatch.getTeamSize(team);
+
+		if (calcTickets <= 0)
+		{
+			Sound::Play("depleted.ogg");
+		}
+		else if (calcTickets <= teamSize)
+		{
+			Sound::Play("depleting.ogg");
+		}
+	}
+
 	void LoadConfig(ConfigFile@ cfg)
 	{
 		ticketsPerPlayer = cfg.read_u32("tickets_per_player", 8);
