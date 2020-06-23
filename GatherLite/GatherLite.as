@@ -251,7 +251,9 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 			"clearvotes", "Clears all votes",
 			"setbluetickets [tickets]", "Sets the number of tickets on Blue Team",
 			"setredtickets [tickets]", "Sets the number of tickets on Red Team",
-			"settickets [tickets]", "Sets the number of tickets on both teams"
+			"settickets [tickets]", "Sets the number of tickets on both teams",
+			"addtickets [tickets]", "Adds tickets to both teams",
+			"remtickets [tickets]", "Removes tickets from both teams"
 		};
 
 		SendMessage("Commands:", ConsoleColour::CRAZY, player);
@@ -570,6 +572,10 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 		{
 			SendMessage("Only an admin can set the tickets", ConsoleColour::ERROR, player);
 		}
+		else if (!gatherMatch.isLive())
+		{
+			SendMessage("You cannot set tickets before the match has started", ConsoleColour::ERROR, player);
+		}
 		else if (args.length < 1)
 		{
 			SendMessage("Specify a valid number of tickets", ConsoleColour::ERROR, player);
@@ -586,6 +592,10 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 		if (!player.isMod())
 		{
 			SendMessage("Only an admin can set the tickets", ConsoleColour::ERROR, player);
+		}
+		else if (!gatherMatch.isLive())
+		{
+			SendMessage("You cannot set tickets before the match has started", ConsoleColour::ERROR, player);
 		}
 		else if (args.length < 1)
 		{
@@ -604,6 +614,10 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 		{
 			SendMessage("Only an admin can set the tickets", ConsoleColour::ERROR, player);
 		}
+		else if (!gatherMatch.isLive())
+		{
+			SendMessage("You cannot set the tickets before the match has started", ConsoleColour::ERROR, player);
+		}
 		else if (args.length < 1)
 		{
 			SendMessage("Specify a valid number of tickets", ConsoleColour::ERROR, player);
@@ -611,9 +625,68 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 		else
 		{
 			uint tickets = parseInt(args[0]);
+
 			gatherMatch.tickets.SetBlueTickets(tickets);
 			gatherMatch.tickets.SetRedTickets(tickets);
+
 			SendMessage("Both teams now have " + tickets + " " + plural(tickets, "ticket"), ConsoleColour::CRAZY);
+		}
+	}
+	else if (command == "addtickets")
+	{
+		if (!player.isMod())
+		{
+			SendMessage("Only an admin can add tickets", ConsoleColour::ERROR, player);
+		}
+		else if (!gatherMatch.isLive())
+		{
+			SendMessage("You cannot add tickets before the match has started", ConsoleColour::ERROR, player);
+		}
+		else if (args.length < 1)
+		{
+			SendMessage("Specify a valid number of tickets to add", ConsoleColour::ERROR, player);
+		}
+		else
+		{
+			uint tickets = parseInt(args[0]);
+
+			uint blueTickets = gatherMatch.tickets.getBlueTickets() + tickets;
+			uint redTickets = gatherMatch.tickets.getRedTickets() + tickets;
+
+			gatherMatch.tickets.SetBlueTickets(blueTickets);
+			gatherMatch.tickets.SetRedTickets(redTickets);
+
+			SendMessage("Both teams now have " + tickets + " more " + plural(tickets, "ticket"), ConsoleColour::CRAZY);
+		}
+	}
+	else if (command == "removetickets" || command == "remtickets" || command == "subtickets")
+	{
+		if (!player.isMod())
+		{
+			SendMessage("Only an admin can remove tickets", ConsoleColour::ERROR, player);
+		}
+		else if (!gatherMatch.isLive())
+		{
+			SendMessage("You cannot remove tickets before the match has started", ConsoleColour::ERROR, player);
+		}
+		else if (args.length < 1)
+		{
+			SendMessage("Specify a valid number of tickets to remove", ConsoleColour::ERROR, player);
+		}
+		else
+		{
+			uint tickets = parseInt(args[0]);
+
+			int blueTickets = gatherMatch.tickets.getBlueTickets() - tickets;
+			int redTickets = gatherMatch.tickets.getRedTickets() - tickets;
+
+			blueTickets = Maths::Max(0, blueTickets);
+			redTickets = Maths::Max(0, redTickets);
+
+			gatherMatch.tickets.SetBlueTickets(blueTickets);
+			gatherMatch.tickets.SetRedTickets(redTickets);
+
+			SendMessage("Both teams now have " + tickets + " fewer " + plural(tickets, "ticket"), ConsoleColour::CRAZY);
 		}
 	}
 	else if (command == "clearvotes")
