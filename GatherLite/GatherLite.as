@@ -224,7 +224,53 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 	string username = player.getUsername();
 	GatherMatch@ gatherMatch = getGatherMatch();
 
-	if (command == "allspec")
+	if (command == "help" || command == "commands")
+	{
+		string[] commands = {
+			"ready/r", "Add yourself to the ready list",
+			"unready/ur", "Remove yourself from the ready list",
+			"whoready/wr", "Lists the players who are ready",
+			"whonotready/wnr", "Lists the players who are not ready",
+			"restart", "Adds your vote to restart the match",
+			"veto", "Adds your vote to change the map",
+			"scramble", "Adds your vote to scramble teams",
+			"tickets", "States the tickets of each team"
+		};
+
+		string[] adminCommands = {
+			"allspec", "Moves everyone to spectator",
+			"forcestart/start", "Starts the match",
+			"forceend/end", "Ends the match",
+			"clearrestart", "Clears votes to restart the match",
+			"forcerestart", "Restarts the match",
+			"fullrestart", "Fully restarts the match back to readying phase",
+			"clearveto", "Clears votes to change the map",
+			"forceveto", "Changes the map",
+			"clearscramble", "Clears votes to scramble teams",
+			"forcescramble", "Scrambles the teams",
+			"clearvotes", "Clears all votes",
+			"setbluetickets [tickets]", "Sets the number of tickets on Blue Team",
+			"setredtickets [tickets]", "Sets the number of tickets on Red Team",
+			"settickets [tickets]", "Sets the number of tickets on both teams"
+		};
+
+		SendMessage("Commands:", ConsoleColour::CRAZY, player);
+		for (uint i = 0; i < commands.length; i += 2)
+		{
+			string command = commands[i];
+			string description = commands[i + 1];
+			SendMessage(prefix + command + " - " + description, ConsoleColour::INFO, player);
+		}
+
+		SendMessage("Admin Commands:", ConsoleColour::CRAZY, player);
+		for (uint i = 0; i < adminCommands.length; i += 2)
+		{
+			string command = adminCommands[i];
+			string description = adminCommands[i + 1];
+			SendMessage(prefix + command + " - " + description, ConsoleColour::INFO, player);
+		}
+	}
+	else if (command == "allspec")
 	{
 		if (!gatherMatch.isInProgress())
 		{
@@ -455,7 +501,7 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 	{
 
 	}
-	else if (command == "scramble" || command == "scrambleteams")
+	else if (command == "scramble")
 	{
 		if (!gatherMatch.isParticipating(username))
 		{
