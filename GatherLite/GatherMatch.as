@@ -232,22 +232,27 @@ shared class GatherMatch
 		//this counts teammates not in game as dead
 
 		string[] players = getPlayers(team);
-		uint alive = 0;
+		uint dead = 0;
 
 		for (uint i = 0; i < players.length; i++)
 		{
 			string username = players[i];
 			CPlayer@ player = getPlayerByUsername(username);
-			CBlob@ blob = player.getBlob();
-
-			if (blob !is null && !blob.hasTag("dead"))
+			if (player is null)
 			{
-				alive++;
+				dead++;
+			}
+			else
+			{
+				CBlob@ blob = player.getBlob();
+				if (blob is null || blob.hasTag("dead"))
+				{
+					dead++;
+				}
 			}
 		}
 
-		uint teamSize = getTeamSize(team);
-		return teamSize - alive;
+		return dead;
 	}
 
 	uint getPlayerCount()
