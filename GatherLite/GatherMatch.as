@@ -208,6 +208,25 @@ shared class GatherMatch
 		return arr;
 	}
 
+	string[] getMissingPlayers()
+	{
+		string[] players = getPlayers();
+		string[] missing;
+
+		for (uint i = 0; i < players.length; i++)
+		{
+			string username = players[i];
+			CPlayer@ player = getPlayerByUsername(username);
+
+			if (player is null)
+			{
+				missing.push_back(username);
+			}
+		}
+
+		return missing;
+	}
+
 	bool allPlayersDead(u8 team)
 	{
 		string[] players = getPlayers(team);

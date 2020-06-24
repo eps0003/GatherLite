@@ -233,6 +233,7 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 			"unready/ur", "Remove yourself from the ready list",
 			"whoready/wr", "Lists the players who are ready",
 			"whonotready/wnr", "Lists the players who are not ready",
+			"whomissing/wm", "Lists the players who are not on the server",
 			"restart", "Adds your vote to restart the match",
 			"veto", "Adds your vote to change the map",
 			"scramble", "Adds your vote to scramble teams",
@@ -455,6 +456,19 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 			{
 				SendMessage("All players are ready", ConsoleColour::INFO, player);
 			}
+		}
+	}
+	else if (command == "wm" || command == "whomissing")
+	{
+		string[] missing = gatherMatch.getMissingPlayers();
+		if (missing.length > 0)
+		{
+			string text = listUsernames(missing);
+			SendMessage("Missing: " + text, ConsoleColour::INFO, player);
+		}
+		else
+		{
+			SendMessage("All players are on the server", ConsoleColour::INFO, player);
 		}
 	}
 	else if (command == "veto")
