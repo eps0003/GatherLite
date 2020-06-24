@@ -272,19 +272,7 @@ shared class GatherMatch
 	{
 		if (isLive())
 		{
-			CRules@ rules = getRules();
-
-			uint blueTickets = tickets.getBlueTickets();
-			uint redTickets = tickets.getRedTickets();
-
-			SColor blueColor = rules.getTeam(0).color;
-			SColor redColor = rules.getTeam(1).color;
-
-			Vec2f pos(440, getScreenHeight() - 100);
-
-			GUI::DrawTextCentered("Spawns Remaining", pos, color_white);
-			GUI::DrawTextCentered("" + blueTickets, pos + Vec2f(-30, 20), blueColor);
-			GUI::DrawTextCentered("" + redTickets, pos + Vec2f(30, 20), redColor);
+			tickets.RenderHUD();
 		}
 		else if (isInProgress())
 		{

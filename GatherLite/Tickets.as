@@ -114,6 +114,23 @@ shared class Tickets
 		}
 	}
 
+	void RenderHUD()
+	{
+		CRules@ rules = getRules();
+
+		uint blueTickets = getBlueTickets();
+		uint redTickets = getRedTickets();
+
+		SColor blueColor = rules.getTeam(0).color;
+		SColor redColor = rules.getTeam(1).color;
+
+		Vec2f pos(440, getScreenHeight() - 100);
+
+		GUI::DrawTextCentered("Spawns Remaining", pos, color_white);
+		GUI::DrawTextCentered("" + blueTickets, pos + Vec2f(-30, 20), blueColor);
+		GUI::DrawTextCentered("" + redTickets, pos + Vec2f(30, 20), redColor);
+	}
+
 	void LoadConfig(ConfigFile@ cfg)
 	{
 		ticketsPerPlayer = cfg.read_u32("tickets_per_player", 8);
