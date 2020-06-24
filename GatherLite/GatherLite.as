@@ -80,7 +80,7 @@ void onRender(CRules@ this)
 void onNewPlayerJoin(CRules@ this, CPlayer@ player)
 {
 	SendMessage("=================== Welcome to Gather! ====================", ConsoleColour::CRAZY, player);
-	SendMessage("Gather is a organised CTF event involving the use of an automated Discord bot to organise matches. Join the Discord in the server description to participate!", ConsoleColour::CRAZY, player);
+	SendMessage("Gather is an organised CTF event involving the use of an automated Discord bot to organise matches. Join the Discord in the server description to participate!", ConsoleColour::CRAZY, player);
 	SendMessage("====================================================", ConsoleColour::CRAZY, player);
 
 	RulesCore@ core;
