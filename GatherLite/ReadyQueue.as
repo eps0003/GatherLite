@@ -106,7 +106,8 @@ shared class ReadyQueue
 			u8 team = gatherMatch.getTeamNum(username);
 
 			int y = 20 + i * 20;
-			SColor color = rules.getTeam(team).color;
+			bool isInServer = getPlayerByUsername(username) !is null;
+			SColor color = isInServer ? rules.getTeam(team).color : SColor(255, 100, 100, 100);
 			GUI::DrawTextCentered(username, pos + Vec2f(0, y), color);
 		}
 
