@@ -231,7 +231,7 @@ shared class GatherMatch
 
 	uint getDeadCount(u8 team)
 	{
-		//this counts teammates not in game as dead
+		//this doesnt include teammates not in game
 
 		string[] players = getPlayers(team);
 		uint dead = 0;
@@ -240,11 +240,7 @@ shared class GatherMatch
 		{
 			string username = players[i];
 			CPlayer@ player = getPlayerByUsername(username);
-			if (player is null)
-			{
-				dead++;
-			}
-			else
+			if (player !is null)
 			{
 				CBlob@ blob = player.getBlob();
 				if (blob is null || blob.hasTag("dead"))

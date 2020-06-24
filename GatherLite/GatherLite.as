@@ -174,7 +174,7 @@ void onPlayerDie(CRules@ this, CPlayer@ victim, CPlayer@ killer, u8 customData)
 			gatherMatch.tickets.PlaySound(victim);
 		}
 
-		//end game if no more tickets
+		//end game if no more tickets and team is dead
 		if (isServer() && tickets <= 0 && gatherMatch.allPlayersDead(team))
 		{
 			u8 winTeam = (team + 1) % 2;
