@@ -403,7 +403,23 @@ shared class GatherMatch
 	void SyncTeams()
 	{
 		CBitStream bs;
+		SerializeTeams(bs);
 
+		CRules@ rules = getRules();
+		rules.SendCommand(rules.getCommandID("sync_gather_teams"), bs, true);
+	}
+
+	void SyncTeams(CPlayer@ player)
+	{
+		CBitStream bs;
+		SerializeTeams(bs);
+
+		CRules@ rules = getRules();
+		rules.SendCommand(rules.getCommandID("sync_gather_teams"), bs, player);
+	}
+
+	private void SerializeTeams(CBitStream@ bs)
+	{
 		string[] blueTeam = getBlueTeam();
 		bs.write_u32(blueTeam.length);
 		for (uint i = 0; i < blueTeam.length; i++)
@@ -419,8 +435,5 @@ shared class GatherMatch
 			string username = redTeam[i];
 			bs.write_string(username);
 		}
-
-		CRules@ rules = getRules();
-		rules.SendCommand(rules.getCommandID("sync_gather_teams"), bs, true);
 	}
 }

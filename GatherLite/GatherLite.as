@@ -92,7 +92,7 @@ void onNewPlayerJoin(CRules@ this, CPlayer@ player)
 
 	if (gatherMatch.isInProgress())
 	{
-		gatherMatch.SyncTeams();
+		gatherMatch.SyncTeams(player);
 
 		u8 team = gatherMatch.getTeamNum(username);
 		core.ChangePlayerTeam(player, team);
