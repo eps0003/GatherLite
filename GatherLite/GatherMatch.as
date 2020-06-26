@@ -310,12 +310,15 @@ shared class GatherMatch
 			for (uint i = 0; i < getPlayersCount(); i++)
 			{
 				CPlayer@ player = getPlayer(i);
-				string username = player.getUsername();
-				u8 team = getTeamNum(username);
-
-				if (player.getTeamNum() != team)
+				if (player !is null)
 				{
-					core.ChangePlayerTeam(player, team);
+					string username = player.getUsername();
+					u8 team = getTeamNum(username);
+
+					if (player.getTeamNum() != team)
+					{
+						core.ChangePlayerTeam(player, team);
+					}
 				}
 			}
 		}
