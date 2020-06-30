@@ -124,11 +124,12 @@ shared class Tickets
 		SColor blueColor = rules.getTeam(0).color;
 		SColor redColor = rules.getTeam(1).color;
 
-		Vec2f pos(440, getScreenHeight() - 100);
+		Vec2f pos(getScreenWidth() / 2.0f, 40);
 
 		GUI::DrawTextCentered("Spawns Remaining", pos, color_white);
-		GUI::DrawTextCentered("" + blueTickets, pos + Vec2f(-30, 20), blueColor);
-		GUI::DrawTextCentered("" + redTickets, pos + Vec2f(30, 20), redColor);
+		GUI::SetFont("tickets_font");
+		GUI::DrawTextCentered("" + blueTickets, pos + Vec2f(-30, 26), blueColor);
+		GUI::DrawTextCentered("" + redTickets, pos + Vec2f(30, 26), redColor);
 	}
 
 	void LoadConfig(ConfigFile@ cfg)
