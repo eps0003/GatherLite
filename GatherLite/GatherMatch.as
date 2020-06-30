@@ -272,6 +272,28 @@ shared class GatherMatch
 		return dead;
 	}
 
+	uint getAliveCount(u8 team)
+	{
+		string[] players = getPlayers(team);
+		uint alive = 0;
+
+		for (uint i = 0; i < players.length; i++)
+		{
+			string username = players[i];
+			CPlayer@ player = getPlayerByUsername(username);
+			if (player !is null)
+			{
+				CBlob@ blob = player.getBlob();
+				if (blob !is null && !blob.hasTag("dead"))
+				{
+					alive++;
+				}
+			}
+		}
+
+		return alive;
+	}
+
 	uint getPlayerCount()
 	{
 		return getBlueTeam().length + getRedTeam().length;

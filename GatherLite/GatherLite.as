@@ -56,10 +56,13 @@ void onTick(CRules@ this)
 
 	if (this.get_bool("gather_status"))
 	{
+		u8 state = this.getCurrentState();
 		uint blueTickets = gatherMatch.tickets.getBlueTickets();
 		uint redTickets = gatherMatch.tickets.getRedTickets();
+		uint blueAlive = gatherMatch.getAliveCount(0);
+		uint redAlive = gatherMatch.getAliveCount(1);
 
-		tcpr("<gather> status " + blueTickets + " " + redTickets);
+		tcpr("<gather> status " + state + " " + blueTickets + " " + redTickets + " " + blueAlive + " " + redAlive);
 		this.set_bool("gather_status", false);
 	}
 
