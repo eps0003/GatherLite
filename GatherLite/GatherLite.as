@@ -615,6 +615,7 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 		{
 			uint tickets = parseInt(args[0]);
 			gatherMatch.tickets.SetBlueTickets(tickets);
+			tickets = gatherMatch.tickets.getBlueTickets();
 			SendMessage("Blue Team now has " + tickets + " " + plural(tickets, "ticket"), ConsoleColour::CRAZY);
 		}
 	}
@@ -636,6 +637,7 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 		{
 			uint tickets = parseInt(args[0]);
 			gatherMatch.tickets.SetRedTickets(tickets);
+			tickets = gatherMatch.tickets.getRedTickets();
 			SendMessage("Red Team now has " + tickets + " " + plural(tickets, "ticket"), ConsoleColour::CRAZY);
 		}
 	}
@@ -659,6 +661,8 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 
 			gatherMatch.tickets.SetBlueTickets(tickets);
 			gatherMatch.tickets.SetRedTickets(tickets);
+
+			tickets = gatherMatch.tickets.getBlueTickets();
 
 			SendMessage("Both teams now have " + tickets + " " + plural(tickets, "ticket"), ConsoleColour::CRAZY);
 		}

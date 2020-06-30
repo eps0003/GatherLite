@@ -3,12 +3,12 @@ shared class Tickets
 	private uint blueTickets = 0;
 	private uint redTickets = 0;
 	private uint ticketsPerPlayer;
+	private uint maxTickets = 999;
 
 	Tickets(CBitStream@ bs)
 	{
 		blueTickets = bs.read_u32();
 		redTickets = bs.read_u32();
-		ticketsPerPlayer = bs.read_u32();
 	}
 
 	void Reset()
@@ -50,12 +50,12 @@ shared class Tickets
 
 	void SetBlueTickets(uint tickets)
 	{
-		blueTickets = tickets;
+		blueTickets = Maths::Min(tickets, maxTickets);
 	}
 
 	void SetRedTickets(uint tickets)
 	{
-		redTickets = tickets;
+		redTickets = Maths::Min(tickets, maxTickets);
 	}
 
 	void SetTickets(u8 team, uint tickets)
@@ -141,6 +141,5 @@ shared class Tickets
 	{
 		bs.write_u32(blueTickets);
 		bs.write_u32(redTickets);
-		bs.write_u32(ticketsPerPlayer);
 	}
 }
