@@ -162,33 +162,40 @@ void onPlayerLeave(CRules@ this, CPlayer@ player)
 	}
 }
 
-void onPlayerDie(CRules@ this, CPlayer@ victim, CPlayer@ killer, u8 customData)
+void onBlobDie(CRules@ this, CBlob@ blob)
 {
-	GatherMatch@ gatherMatch = getGatherMatch();
+	if (blob is null) return; //just in case
 
-	if (gatherMatch.tickets.canDecrementTickets())
+	CPlayer@ player = blob.getPlayer();
+
+	if (player !is null)
 	{
-		u8 team = victim.getTeamNum();
-		uint tickets = gatherMatch.tickets.getTickets(team);
+		GatherMatch@ gatherMatch = getGatherMatch();
 
-		//play ticket warning sounds
-		if (isClient())
+		if (gatherMatch.tickets.canDecrementTickets())
 		{
-			gatherMatch.tickets.PlaySound(victim);
-		}
+			u8 team = player.getTeamNum();
+			uint tickets = gatherMatch.tickets.getTickets(team);
 
-		//end game if no more tickets and team is dead
-		if (isServer() && tickets <= 0 && gatherMatch.allPlayersDead(team))
-		{
-			u8 winTeam = (team + 1) % 2;
-			string winTeamName = this.getTeam(winTeam).getName();
+			//play ticket warning sounds
+			if (isClient())
+			{
+				gatherMatch.tickets.PlaySound(player);
+			}
 
-			this.SetTeamWon(winTeam);
-			this.SetCurrentState(GAME_OVER);
-			this.SetGlobalMessage("{WINNING_TEAM} wins the game!");
-			this.AddGlobalMessageReplacement("WINNING_TEAM", winTeamName);
+			//end game if no more tickets and team is dead
+			if (isServer() && tickets <= 0 && gatherMatch.allPlayersDead(team))
+			{
+				u8 winTeam = (team + 1) % 2;
+				string winTeamName = this.getTeam(winTeam).getName();
 
-			gatherMatch.EndMatch(MatchEndCause::Tickets);
+				this.SetTeamWon(winTeam);
+				this.SetCurrentState(GAME_OVER);
+				this.SetGlobalMessage("{WINNING_TEAM} wins the game!");
+				this.AddGlobalMessageReplacement("WINNING_TEAM", winTeamName);
+
+				gatherMatch.EndMatch(MatchEndCause::Tickets);
+			}
 		}
 	}
 }
