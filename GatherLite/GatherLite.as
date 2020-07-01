@@ -8,11 +8,6 @@ void onInit(CRules@ this)
 	this.addCommandID("sync_gather_match");
 	this.addCommandID("sync_gather_teams");
 
-	if (!GUI::isFontLoaded("tickets_font"))
-	{
-		GUI::LoadFont("tickets_font", "GUI/Fonts/AveriaSerif-Regular.ttf", 30, true);
-	}
-
 	onRestart(this);
 }
 
