@@ -113,7 +113,7 @@ shared class GatherMatch
 			rules.clear("red_team");
 			SyncTeams();
 
-			u8 winningTeam = rules.getTeamWon();
+			s8 winningTeam = rules.getTeamWon();
 			uint duration = (isLive() && !rules.isWarmup()) ? (getGameTime() - rules.get_u32("start_time")) : 0;
 			uint blueTickets = tickets.getBlueTickets();
 			uint redTickets = tickets.getRedTickets();
