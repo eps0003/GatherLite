@@ -499,7 +499,7 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 		}
 		else if (this.isMatchRunning())
 		{
-			SendMessage("You cannot veto the map after build time has finished", ConsoleColour::ERROR, player);
+			SendMessage("You cannot veto the map after build time has ended", ConsoleColour::ERROR, player);
 		}
 		else
 		{
