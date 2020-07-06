@@ -535,10 +535,6 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 			SendMessage(username + " has changed the map", ConsoleColour::CRAZY);
 		}
 	}
-	else if (command == "rsub" || command == "reqsub" || command == "requestsub")
-	{
-
-	}
 	else if (command == "scramble")
 	{
 		if (!gatherMatch.isParticipating(username))
@@ -586,14 +582,6 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 			gatherMatch.ScrambleTeams();
 			SendMessage(username + " has scrambled the teams", ConsoleColour::CRAZY);
 		}
-	}
-	else if (command == "freeze" || command == "pause" || command == "wait")
-	{
-
-	}
-	else if (command == "unfreeze" || command == "unpause" || command == "resume" || command == "continue")
-	{
-
 	}
 	else if (command == "tickets")
 	{
