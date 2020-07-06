@@ -211,6 +211,12 @@ void onStateChange(CRules@ this, const u8 oldState)
 		if (this.isMatchRunning())
 		{
 			this.set_u32("start_time", getGameTime());
+
+			if (gatherMatch.vetoQueue.hasVotes())
+			{
+				gatherMatch.vetoQueue.Clear();
+				SendMessage("All map vetoes have been cleared due to build time ending", ConsoleColour::CRAZY);
+			}
 		}
 		else if (this.isGameOver())
 		{
@@ -490,6 +496,10 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 		else if (!gatherMatch.isLive())
 		{
 			SendMessage("You cannot veto the map before the match has started", ConsoleColour::ERROR, player);
+		}
+		else if (this.isMatchRunning())
+		{
+			SendMessage("You cannot veto the map after build time has finished", ConsoleColour::ERROR, player);
 		}
 		else
 		{
