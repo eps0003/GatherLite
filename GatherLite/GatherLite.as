@@ -2,6 +2,8 @@
 #include "RulesCore.as"
 #include "Utilities.as"
 
+string PREFIX = "!";
+
 void onInit(CRules@ this)
 {
 	this.addCommandID("server_message");
@@ -83,7 +85,7 @@ void onRender(CRules@ this)
 void onNewPlayerJoin(CRules@ this, CPlayer@ player)
 {
 	SendMessage("=================== Welcome to Gather! ====================", ConsoleColour::CRAZY, player);
-	SendMessage("Gather is an organised CTF event involving the use of an automated Discord bot to organise matches. Join the Discord in the server description to participate!", ConsoleColour::CRAZY, player);
+	SendMessage("Gather is an CTF event involving the use of a Discord bot to organise matches. Join the Discord in the server description to participate, and type " + PREFIX + "help for a list of commands!", ConsoleColour::CRAZY, player);
 	SendMessage("====================================================", ConsoleColour::CRAZY, player);
 
 	RulesCore@ core;
@@ -227,15 +229,13 @@ void onStateChange(CRules@ this, const u8 oldState)
 
 bool onServerProcessChat(CRules@ this, const string& in text_in, string& out text_out, CPlayer@ player)
 {
-	string prefix = "!";
-
 	//check if message starts with prefix
-	if (text_in.substr(0, prefix.length) != prefix)
+	if (text_in.substr(0, PREFIX.length) != PREFIX)
 	{
 		return true;
 	}
 
-	string[] args = text_in.substr(prefix.length).split(" ");
+	string[] args = text_in.substr(PREFIX.length).split(" ");
 	string command = args[0].toLower();
 	args.removeAt(0);
 
@@ -280,7 +280,7 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 		{
 			string command = commands[i];
 			string description = commands[i + 1];
-			SendMessage(prefix + command + " - " + description, ConsoleColour::INFO, player);
+			SendMessage(PREFIX + command + " - " + description, ConsoleColour::INFO, player);
 		}
 
 		SendMessage("Admin Commands:", ConsoleColour::CRAZY, player);
@@ -288,7 +288,7 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 		{
 			string command = adminCommands[i];
 			string description = adminCommands[i + 1];
-			SendMessage(prefix + command + " - " + description, ConsoleColour::INFO, player);
+			SendMessage(PREFIX + command + " - " + description, ConsoleColour::INFO, player);
 		}
 	}
 	else if (command == "allspec")
