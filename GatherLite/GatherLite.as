@@ -1,6 +1,7 @@
 #include "GatherMatch.as"
 #include "RulesCore.as"
 #include "Utilities.as"
+#include "WelcomeBanner.as"
 
 string PREFIX = "!";
 
@@ -9,6 +10,11 @@ void onInit(CRules@ this)
 	this.addCommandID("server_message");
 	this.addCommandID("sync_gather_match");
 	this.addCommandID("sync_gather_teams");
+
+	if (isClient())
+	{
+		WelcomeBanner::Init();
+	}
 
 	onRestart(this);
 }
@@ -34,52 +40,88 @@ void onTCPRDisconnect(CRules@ this)
 
 void onTick(CRules@ this)
 {
-	if (!isServer()) return;
-
-	GatherMatch@ gatherMatch = getGatherMatch();
-
-	if (this.get_bool("gather_teams_set"))
+	if (isClient())
 	{
-		gatherMatch.ReceivedTeams();
-		this.set_bool("gather_teams_set", false);
+		WelcomeBanner::LoadConfig();
 	}
 
-	if (this.get_bool("gather_teams_updated"))
+	if (isServer())
 	{
-		gatherMatch.UpdatedTeams();
-		this.set_bool("gather_teams_updated", false);
-	}
+		GatherMatch@ gatherMatch = getGatherMatch();
 
-	if (this.get_bool("gather_end_match"))
-	{
-		gatherMatch.EndMatch(MatchEndCause::Forced);
-		this.set_bool("gather_end_match", false);
-	}
+		if (this.get_bool("gather_teams_set"))
+		{
+			gatherMatch.ReceivedTeams();
+			this.set_bool("gather_teams_set", false);
+		}
 
-	if (this.get_bool("gather_status"))
-	{
-		u8 state = this.getCurrentState();
-		uint blueTickets = gatherMatch.tickets.getBlueTickets();
-		uint redTickets = gatherMatch.tickets.getRedTickets();
-		uint blueAlive = gatherMatch.getAliveCount(0);
-		uint redAlive = gatherMatch.getAliveCount(1);
+		if (this.get_bool("gather_teams_updated"))
+		{
+			gatherMatch.UpdatedTeams();
+			this.set_bool("gather_teams_updated", false);
+		}
 
-		tcpr("<gather> status " + state + " " + blueTickets + " " + redTickets + " " + blueAlive + " " + redAlive);
-		this.set_bool("gather_status", false);
-	}
+		if (this.get_bool("gather_end_match"))
+		{
+			gatherMatch.EndMatch(MatchEndCause::Forced);
+			this.set_bool("gather_end_match", false);
+		}
 
-	//sync gather match to clients
-	if (!isClient())
-	{
-		CBitStream bs;
-		gatherMatch.Serialize(bs);
-		this.SendCommand(this.getCommandID("sync_gather_match"), bs, true);
+		if (this.get_bool("gather_status"))
+		{
+			u8 state = this.getCurrentState();
+			uint blueTickets = gatherMatch.tickets.getBlueTickets();
+			uint redTickets = gatherMatch.tickets.getRedTickets();
+			uint blueAlive = gatherMatch.getAliveCount(0);
+			uint redAlive = gatherMatch.getAliveCount(1);
+
+			tcpr("<gather> status " + state + " " + blueTickets + " " + redTickets + " " + blueAlive + " " + redAlive);
+			this.set_bool("gather_status", false);
+		}
+
+		//sync gather match to clients if not localhost
+		if (!isClient())
+		{
+			CBitStream bs;
+			gatherMatch.Serialize(bs);
+			this.SendCommand(this.getCommandID("sync_gather_match"), bs, true);
+		}
 	}
 }
 
 void onRender(CRules@ this)
 {
 	getGatherMatch().RenderHUD();
+
+	if (WelcomeBanner::isVisible())
+	{
+		uint screenWidth = getScreenWidth();
+		uint screenHeight = getScreenHeight();
+
+		string heading = "Welcome to Gather!";
+		GUI::SetFont("heading");
+
+		Vec2f headingDim;
+		GUI::GetTextDimensions(heading, headingDim);
+
+		uint windowWidth = headingDim.x + 240;
+		uint windowHeight = 350;
+
+		Vec2f tl = Vec2f(screenWidth - windowWidth, screenHeight - windowHeight) / 2.0f;
+		Vec2f br = Vec2f(screenWidth + windowWidth, screenHeight + windowHeight) / 2.0f;
+
+		GUI::DrawWindow(tl, br);
+
+		GUI::DrawTextCentered(heading, Vec2f(screenWidth / 2.0f, tl.y + 50), ConsoleColour::INFO);
+		GUI::DrawIcon("GatherFlag.png", 0, Vec2f(32, 32), Vec2f(screenWidth / 2.0f - headingDim.x / 2.0f, tl.y), -1.5f, 1.5f, 0, color_white);
+		GUI::DrawIcon("GatherFlag.png", 0, Vec2f(32, 32), Vec2f(screenWidth / 2.0f + headingDim.x / 2.0f, tl.y), 1.5f, 1.5f, 1, color_white);
+
+		GUI::SetFont("body");
+
+		uint margin = 20;
+
+		GUI::DrawText("Gather is a CTF event involving the use of a Discord bot to organise matches\n\nTo participate in a match, please do the following:\n   1.   Join the Discord in the server description\n   2.   !add to the queue in #gather-general\n   3.   Join this server when the queue is filled and teams have been assigned\n   4.   Type " + PREFIX + "ready in chat to add yourself to the ready list\n   5.   Wait for everyone to ready\n   6.   Play!\n\nType " + PREFIX + "commands in chat for a full list of commands\nType " + PREFIX + "dismiss in chat to dismiss this window", tl + Vec2f(margin, 100), br - Vec2f(margin, margin), ConsoleColour::INFO, false, false);
+	}
 }
 
 void onNewPlayerJoin(CRules@ this, CPlayer@ player)
@@ -225,6 +267,17 @@ void onStateChange(CRules@ this, const u8 oldState)
 			gatherMatch.EndMatch(MatchEndCause::CapturedFlags);
 		}
 	}
+}
+
+bool onClientProcessChat(CRules@ this, const string &in text_in, string &out text_out, CPlayer@ player)
+{
+	if (text_in.toLower() == PREFIX + "dismiss" && WelcomeBanner::isVisible())
+	{
+		WelcomeBanner::Dismiss();
+		return false;
+	}
+
+	return true;
 }
 
 bool onServerProcessChat(CRules@ this, const string& in text_in, string& out text_out, CPlayer@ player)
