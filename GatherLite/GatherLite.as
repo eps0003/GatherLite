@@ -113,8 +113,8 @@ void onRender(CRules@ this)
 		GUI::DrawWindow(tl, br);
 
 		GUI::DrawTextCentered(heading, Vec2f(screenWidth / 2.0f, tl.y + 50), ConsoleColour::INFO);
-		GUI::DrawIcon("GatherFlag.png", 0, Vec2f(32, 32), Vec2f(screenWidth / 2.0f - headingDim.x / 2.0f, tl.y), -1.5f, 1.5f, 0, color_white);
-		GUI::DrawIcon("GatherFlag.png", 0, Vec2f(32, 32), Vec2f(screenWidth / 2.0f + headingDim.x / 2.0f, tl.y), 1.5f, 1.5f, 1, color_white);
+		GUI::DrawIcon("GatherFlagFlipped.png", 0, Vec2f(-32, 32), Vec2f(screenWidth / 2.0f - headingDim.x / 2.0f, tl.y), 1.5f, 0);
+		GUI::DrawIcon("GatherFlag.png", 0, Vec2f(32, 32), Vec2f(screenWidth / 2.0f + headingDim.x / 2.0f, tl.y), 1.5f, 1);
 
 		GUI::SetFont("body");
 
