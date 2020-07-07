@@ -29,6 +29,11 @@ namespace WelcomeBanner
 		return getRules().get_bool("new_to_gather");
 	}
 
+	void Show()
+	{
+		getRules().set_bool("new_to_gather", true);
+	}
+
 	void Dismiss()
 	{
 		ConfigFile cfg = ConfigFile();

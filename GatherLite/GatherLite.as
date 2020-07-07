@@ -244,16 +244,168 @@ void onStateChange(CRules@ this, const u8 oldState)
 
 bool onClientProcessChat(CRules@ this, const string &in text_in, string &out text_out, CPlayer@ player)
 {
-	if (text_in.toLower() == PREFIX + "dismiss")
+	//check if message starts with prefix
+	if (text_in.substr(0, PREFIX.length) != PREFIX)
+	{
+		return true;
+	}
+
+	string[] args = text_in.substr(PREFIX.length).split(" ");
+	string command = args[0].toLower();
+	args.removeAt(0);
+
+	GatherMatch@ gatherMatch = getGatherMatch();
+
+	if (command == "commands")
+	{
+		if (player.isMyPlayer())
+		{
+			string[] commands = {
+				"ready/r", "Add yourself to the ready list",
+				"unready/ur", "Remove yourself from the ready list",
+				"whoready/wr", "Lists the players who are ready",
+				"whonotready/wnr", "Lists the players who are not ready",
+				"whomissing/wm", "Lists the players who are not on the server",
+				"restart", "Adds your vote to restart the match",
+				"veto", "Adds your vote to change the map",
+				"scramble", "Adds your vote to scramble teams",
+				"tickets", "States the tickets of each team"
+			};
+
+			string[] adminCommands = {
+				"allspec", "Moves everyone to spectator",
+				"forcestart/start", "Starts the match",
+				"forceend/end", "Ends the match",
+				"clearrestart", "Clears votes to restart the match",
+				"forcerestart", "Restarts the match",
+				"fullrestart", "Fully restarts the match back to readying phase",
+				"clearveto", "Clears votes to change the map",
+				"forceveto", "Changes the map",
+				"clearscramble", "Clears votes to scramble teams",
+				"forcescramble", "Scrambles the teams",
+				"clearvotes", "Clears all votes",
+				"setbluetickets [tickets]", "Sets the number of tickets on Blue Team",
+				"setredtickets [tickets]", "Sets the number of tickets on Red Team",
+				"settickets [tickets]", "Sets the number of tickets on both teams",
+				"addtickets [tickets]", "Adds tickets to both teams",
+				"remtickets [tickets]", "Removes tickets from both teams"
+			};
+
+			SendMessage("Commands:", ConsoleColour::CRAZY, player);
+			for (uint i = 0; i < commands.length; i += 2)
+			{
+				string command = commands[i];
+				string description = commands[i + 1];
+				client_AddToChat(PREFIX + command + " - " + description, ConsoleColour::INFO);
+			}
+
+			SendMessage("Admin Commands:", ConsoleColour::CRAZY, player);
+			for (uint i = 0; i < adminCommands.length; i += 2)
+			{
+				string command = adminCommands[i];
+				string description = adminCommands[i + 1];
+				client_AddToChat(PREFIX + command + " - " + description, ConsoleColour::INFO);
+			}
+		}
+	}
+	else if (command == "dismiss")
 	{
 		if (player.isMyPlayer())
 		{
 			WelcomeBanner::Dismiss();
 		}
-		return false;
+	}
+	else if (command == "help")
+	{
+		if (player.isMyPlayer())
+		{
+			WelcomeBanner::Show();
+		}
+	}
+	else if (!gatherMatch.isInProgress())
+	{
+		return true;
+		//gather-specific commands go after here
+	}
+	else if (command == "wr" || command == "whoready")
+	{
+		if (player.isMyPlayer())
+		{
+			if (gatherMatch.isLive())
+			{
+				client_AddToChat("The match is already in progress", ConsoleColour::ERROR);
+			}
+			else
+			{
+				string[] ready = gatherMatch.readyQueue.getReadyPlayers();
+				if (ready.length > 0)
+				{
+					string text = listUsernames(ready);
+					client_AddToChat("Ready: " + text, ConsoleColour::INFO);
+				}
+				else
+				{
+					client_AddToChat("No players are ready", ConsoleColour::INFO);
+				}
+			}
+		}
+	}
+	else if (command == "wnr" || command == "whonotready")
+	{
+		if (player.isMyPlayer())
+		{
+			if (gatherMatch.isLive())
+			{
+				client_AddToChat("The match is already in progress", ConsoleColour::ERROR);
+			}
+			else
+			{
+				string[] notReady = gatherMatch.readyQueue.getNotReadyPlayers();
+				if (notReady.length > 0)
+				{
+					string text = listUsernames(notReady);
+					client_AddToChat("Not ready: " + text, ConsoleColour::INFO);
+				}
+				else
+				{
+					client_AddToChat("All players are ready", ConsoleColour::INFO);
+				}
+			}
+		}
+	}
+	else if (command == "wm" || command == "whomissing")
+	{
+		if (player.isMyPlayer())
+		{
+			string[] missing = gatherMatch.getMissingPlayers();
+			if (missing.length > 0)
+			{
+				string text = listUsernames(missing);
+				client_AddToChat("Missing: " + text, ConsoleColour::INFO);
+			}
+			else
+			{
+				client_AddToChat("All players are on the server", ConsoleColour::INFO);
+			}
+		}
+	}
+	else if (command == "tickets")
+	{
+		if (player.isMyPlayer())
+		{
+			uint blueTickets = gatherMatch.tickets.getBlueTickets();
+			uint redTickets = gatherMatch.tickets.getRedTickets();
+			client_AddToChat("Blue tickets: " + blueTickets, ConsoleColour::INFO);
+			client_AddToChat("Red tickets: " + redTickets, ConsoleColour::INFO);
+		}
+	}
+	else
+	{
+		//not a gather command
+		return true;
 	}
 
-	return true;
+	return false;
 }
 
 bool onServerProcessChat(CRules@ this, const string& in text_in, string& out text_out, CPlayer@ player)
@@ -271,56 +423,7 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 	string username = player.getUsername();
 	GatherMatch@ gatherMatch = getGatherMatch();
 
-	if (command == "help" || command == "commands")
-	{
-		string[] commands = {
-			"ready/r", "Add yourself to the ready list",
-			"unready/ur", "Remove yourself from the ready list",
-			"whoready/wr", "Lists the players who are ready",
-			"whonotready/wnr", "Lists the players who are not ready",
-			"whomissing/wm", "Lists the players who are not on the server",
-			"restart", "Adds your vote to restart the match",
-			"veto", "Adds your vote to change the map",
-			"scramble", "Adds your vote to scramble teams",
-			"tickets", "States the tickets of each team"
-		};
-
-		string[] adminCommands = {
-			"allspec", "Moves everyone to spectator",
-			"forcestart/start", "Starts the match",
-			"forceend/end", "Ends the match",
-			"clearrestart", "Clears votes to restart the match",
-			"forcerestart", "Restarts the match",
-			"fullrestart", "Fully restarts the match back to readying phase",
-			"clearveto", "Clears votes to change the map",
-			"forceveto", "Changes the map",
-			"clearscramble", "Clears votes to scramble teams",
-			"forcescramble", "Scrambles the teams",
-			"clearvotes", "Clears all votes",
-			"setbluetickets [tickets]", "Sets the number of tickets on Blue Team",
-			"setredtickets [tickets]", "Sets the number of tickets on Red Team",
-			"settickets [tickets]", "Sets the number of tickets on both teams",
-			"addtickets [tickets]", "Adds tickets to both teams",
-			"remtickets [tickets]", "Removes tickets from both teams"
-		};
-
-		SendMessage("Commands:", ConsoleColour::CRAZY, player);
-		for (uint i = 0; i < commands.length; i += 2)
-		{
-			string command = commands[i];
-			string description = commands[i + 1];
-			SendMessage(PREFIX + command + " - " + description, ConsoleColour::INFO, player);
-		}
-
-		SendMessage("Admin Commands:", ConsoleColour::CRAZY, player);
-		for (uint i = 0; i < adminCommands.length; i += 2)
-		{
-			string command = adminCommands[i];
-			string description = adminCommands[i + 1];
-			SendMessage(PREFIX + command + " - " + description, ConsoleColour::INFO, player);
-		}
-	}
-	else if (command == "allspec")
+	if (command == "allspec")
 	{
 		if (!gatherMatch.isInProgress())
 		{
@@ -463,59 +566,6 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 			gatherMatch.ReceivedTeams();
 		}
 	}
-	else if (command == "wr" || command == "whoready")
-	{
-		if (gatherMatch.isLive())
-		{
-			SendMessage("The match is already in progress", ConsoleColour::ERROR, player);
-		}
-		else
-		{
-			string[] ready = gatherMatch.readyQueue.getReadyPlayers();
-			if (ready.length > 0)
-			{
-				string text = listUsernames(ready);
-				SendMessage("Ready: " + text, ConsoleColour::INFO, player);
-			}
-			else
-			{
-				SendMessage("No players are ready", ConsoleColour::INFO, player);
-			}
-		}
-	}
-	else if (command == "wnr" || command == "whonotready")
-	{
-		if (gatherMatch.isLive())
-		{
-			SendMessage("The match is already in progress", ConsoleColour::ERROR, player);
-		}
-		else
-		{
-			string[] notReady = gatherMatch.readyQueue.getNotReadyPlayers();
-			if (notReady.length > 0)
-			{
-				string text = listUsernames(notReady);
-				SendMessage("Not ready: " + text, ConsoleColour::INFO, player);
-			}
-			else
-			{
-				SendMessage("All players are ready", ConsoleColour::INFO, player);
-			}
-		}
-	}
-	else if (command == "wm" || command == "whomissing")
-	{
-		string[] missing = gatherMatch.getMissingPlayers();
-		if (missing.length > 0)
-		{
-			string text = listUsernames(missing);
-			SendMessage("Missing: " + text, ConsoleColour::INFO, player);
-		}
-		else
-		{
-			SendMessage("All players are on the server", ConsoleColour::INFO, player);
-		}
-	}
 	else if (command == "veto")
 	{
 		if (!gatherMatch.isParticipating(username))
@@ -611,13 +661,6 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 			gatherMatch.ScrambleTeams();
 			SendMessage(username + " has scrambled the teams", ConsoleColour::CRAZY);
 		}
-	}
-	else if (command == "tickets")
-	{
-		uint blueTickets = gatherMatch.tickets.getBlueTickets();
-		uint redTickets = gatherMatch.tickets.getRedTickets();
-		SendMessage("Blue tickets: " + blueTickets, ConsoleColour::INFO, player);
-		SendMessage("Red tickets: " + redTickets, ConsoleColour::INFO, player);
 	}
 	else if (command == "setbluetickets")
 	{
