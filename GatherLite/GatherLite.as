@@ -244,9 +244,12 @@ void onStateChange(CRules@ this, const u8 oldState)
 
 bool onClientProcessChat(CRules@ this, const string &in text_in, string &out text_out, CPlayer@ player)
 {
-	if (text_in.toLower() == PREFIX + "dismiss" && WelcomeBanner::isVisible())
+	if (text_in.toLower() == PREFIX + "dismiss")
 	{
-		WelcomeBanner::Dismiss();
+		if (player.isMyPlayer())
+		{
+			WelcomeBanner::Dismiss();
+		}
 		return false;
 	}
 
