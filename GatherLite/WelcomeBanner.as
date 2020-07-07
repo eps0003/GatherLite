@@ -65,7 +65,7 @@ namespace WelcomeBanner
 		GUI::GetTextDimensions(heading, headingDim);
 
 		uint windowWidth = headingDim.x + 240;
-		uint windowHeight = 350;
+		uint windowHeight = 368;
 
 		Vec2f tl = Vec2f(screenWidth - windowWidth, screenHeight - windowHeight) / 2.0f;
 		Vec2f br = Vec2f(screenWidth + windowWidth, screenHeight + windowHeight) / 2.0f;
@@ -80,6 +80,6 @@ namespace WelcomeBanner
 
 		uint padding = 20;
 
-		GUI::DrawText("Gather is a CTF event involving the use of a Discord bot to organise matches\n\nTo participate in a match, please do the following:\n   1.   Join the Discord in the server description\n   2.   !add to the queue in #gather-general\n   3.   Join this server when the queue is filled and teams have been assigned\n   4.   Type " + PREFIX + "ready in chat to add yourself to the ready list\n   5.   Wait for everyone to ready\n   6.   Play!\n\nType " + PREFIX + "commands in chat for a full list of commands\nType " + PREFIX + "dismiss in chat to dismiss this window", tl + Vec2f(padding, 100), br - Vec2f(padding, padding), ConsoleColour::INFO, false, false);
+		GUI::DrawText("Gather is a CTF event involving the use of a Discord bot to organise matches\nUnlike regular CTF, Gather includes a limited number of respawns per team\n\nTo participate in a match, please do the following:\n   1.   Join the Discord in the server description\n   2.   !add to the queue in #gather-general\n   3.   Join this server when the queue is filled and teams have been assigned\n   4.   Type " + PREFIX + "ready in chat to add yourself to the ready list\n   5.   Wait for everyone to ready\n   6.   Play!\n\nType " + PREFIX + "commands in chat for a full list of commands\nType " + PREFIX + "dismiss in chat to dismiss this window", tl + Vec2f(padding, 100), br - Vec2f(padding, padding), ConsoleColour::INFO, false, false);
 	}
 }
