@@ -120,7 +120,7 @@ void onNewPlayerJoin(CRules@ this, CPlayer@ player)
 		if (gatherMatch.isLive() && gatherMatch.isParticipating(username))
 		{
 			string teamName = this.getTeam(team).getName();
-			SendMessage(username + ", a missing player for " + teamName + ", has returned", ConsoleColour::CRAZY);
+			SendMessage(username + ", a missing player for " + teamName + ", has joined", ConsoleColour::CRAZY);
 		}
 	}
 	else if (player.getTeamNum() != this.getSpectatorTeamNum())
