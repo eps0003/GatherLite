@@ -3,6 +3,7 @@
 shared class ScrambleQueue
 {
 	private Queue queue;
+	private float requirement;
 
 	ScrambleQueue(CBitStream@ bs)
 	{
@@ -65,7 +66,7 @@ shared class ScrambleQueue
 
 	private uint getTotal()
 	{
-		return Maths::Max(1, getGatherMatch().getPlayerCount() * 0.6f);
+		return Maths::Max(1, getGatherMatch().getPlayerCount() * requirement);
 	}
 
 	private bool hasEnoughVotes()
@@ -90,5 +91,10 @@ shared class ScrambleQueue
 	void Serialize(CBitStream@ bs)
 	{
 		queue.Serialize(bs);
+	}
+
+	void LoadConfig(ConfigFile@ cfg)
+	{
+		requirement = cfg.read_f32("scramble_req", 0.6f);
 	}
 }

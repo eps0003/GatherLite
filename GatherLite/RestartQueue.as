@@ -3,6 +3,7 @@
 shared class RestartQueue
 {
 	private Queue queue;
+	private float requirement;
 
 	RestartQueue(CBitStream@ bs)
 	{
@@ -69,7 +70,7 @@ shared class RestartQueue
 
 	private uint getTotal()
 	{
-		return Maths::Max(1, getGatherMatch().getPlayerCount() * 0.6f);
+		return Maths::Max(1, getGatherMatch().getPlayerCount() * requirement);
 	}
 
 	private bool hasEnoughVotes()
@@ -94,5 +95,10 @@ shared class RestartQueue
 	void Serialize(CBitStream@ bs)
 	{
 		queue.Serialize(bs);
+	}
+
+	void LoadConfig(ConfigFile@ cfg)
+	{
+		requirement = cfg.read_f32("restart_req", 0.6f);
 	}
 }

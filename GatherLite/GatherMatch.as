@@ -383,6 +383,9 @@ shared class GatherMatch
 		ConfigFile@ cfg = ConfigFile();
 		if (cfg.loadFile("gather.cfg"))
 		{
+			restartQueue.LoadConfig(cfg);
+			vetoQueue.LoadConfig(cfg);
+			scrambleQueue.LoadConfig(cfg);
 			tickets.LoadConfig(cfg);
 		}
 		else

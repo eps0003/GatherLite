@@ -3,6 +3,7 @@
 shared class VetoQueue
 {
 	private Queue queue;
+	private float requirement;
 
 	VetoQueue(CBitStream@ bs)
 	{
@@ -69,7 +70,7 @@ shared class VetoQueue
 
 	private uint getTotal()
 	{
-		return Maths::Max(1, getGatherMatch().getPlayerCount() * 0.6f);
+		return Maths::Max(1, getGatherMatch().getPlayerCount() * requirement);
 	}
 
 	private bool hasEnoughVotes()
@@ -94,5 +95,10 @@ shared class VetoQueue
 	void Serialize(CBitStream@ bs)
 	{
 		queue.Serialize(bs);
+	}
+
+	void LoadConfig(ConfigFile@ cfg)
+	{
+		requirement = cfg.read_f32("veto_req", 0.6f);
 	}
 }
