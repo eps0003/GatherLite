@@ -312,6 +312,8 @@ shared class GatherMatch
 
 	void RenderHUD()
 	{
+		if (g_videorecording) return;
+
 		if (isLive())
 		{
 			tickets.RenderHUD();
