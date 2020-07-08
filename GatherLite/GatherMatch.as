@@ -68,6 +68,13 @@ shared class GatherMatch
 		MovePlayersToTeams();
 		CleanQueues();
 		SyncTeams();
+
+		//the final non-ready player might have been removed
+		if (readyQueue.isEveryoneReady())
+		{
+			LoadNextMap();
+			StartMatch();
+		}
 	}
 
 	void ReceivedTeams()

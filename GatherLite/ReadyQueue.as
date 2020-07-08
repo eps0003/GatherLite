@@ -85,7 +85,7 @@ shared class ReadyQueue
 		return getGatherMatch().getPlayerCount();
 	}
 
-	private bool isEveryoneReady()
+	bool isEveryoneReady()
 	{
 		return queue.getCount() >= getTotal();
 	}
