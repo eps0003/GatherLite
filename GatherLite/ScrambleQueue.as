@@ -65,7 +65,7 @@ shared class ScrambleQueue
 
 	private uint getTotal()
 	{
-		return Maths::Max(1, getGatherMatch().getPlayerCount() * 2.6f);
+		return Maths::Max(1, getGatherMatch().getPlayerCount() * 0.6f);
 	}
 
 	private bool hasEnoughVotes()
