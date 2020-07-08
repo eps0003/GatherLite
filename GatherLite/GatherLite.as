@@ -261,8 +261,9 @@ bool onClientProcessChat(CRules@ this, const string &in text_in, string &out tex
 		if (player.isMyPlayer())
 		{
 			string[] commands = {
-				"ready/r", "Add yourself to the ready list",
-				"unready/ur", "Remove yourself from the ready list",
+				"help", "Shows the welcome banner",
+				"ready/r", "Adds yourself to the ready list",
+				"unready/ur", "Removes yourself from the ready list",
 				"whoready/wr", "Lists the players who are ready",
 				"whonotready/wnr", "Lists the players who are not ready",
 				"whomissing/wm", "Lists the players who are not on the server",
