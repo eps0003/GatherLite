@@ -65,12 +65,26 @@ shared class ScrambleQueue
 
 	private uint getTotal()
 	{
-		return Maths::Max(1, getGatherMatch().getPlayerCount() * 0.6f);
+		return Maths::Max(1, getGatherMatch().getPlayerCount() * 2.6f);
 	}
 
 	private bool hasEnoughVotes()
 	{
 		return queue.getCount() >= getTotal();
+	}
+
+	void Clean()
+	{
+		GatherMatch@ gatherMatch = getGatherMatch();
+		string[] players = queue.getPlayers();
+		for (uint i = 0; i < players.length; i++)
+		{
+			string username = players[i];
+			if (!gatherMatch.isParticipating(username))
+			{
+				Remove(username);
+			}
+		}
 	}
 
 	void Serialize(CBitStream@ bs)

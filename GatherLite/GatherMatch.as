@@ -66,6 +66,7 @@ shared class GatherMatch
 	void UpdatedTeams()
 	{
 		MovePlayersToTeams();
+		CleanQueues();
 		SyncTeams();
 	}
 
@@ -457,5 +458,13 @@ shared class GatherMatch
 			string username = redTeam[i];
 			bs.write_string(username);
 		}
+	}
+
+	private void CleanQueues()
+	{
+		readyQueue.Clean();
+		restartQueue.Clean();
+		vetoQueue.Clean();
+		scrambleQueue.Clean();
 	}
 }

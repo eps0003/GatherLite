@@ -126,6 +126,20 @@ shared class ReadyQueue
 		}
 	}
 
+	void Clean()
+	{
+		GatherMatch@ gatherMatch = getGatherMatch();
+		string[] players = queue.getPlayers();
+		for (uint i = 0; i < players.length; i++)
+		{
+			string username = players[i];
+			if (!gatherMatch.isParticipating(username))
+			{
+				Remove(username);
+			}
+		}
+	}
+
 	void Serialize(CBitStream@ bs)
 	{
 		queue.Serialize(bs);
