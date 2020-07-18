@@ -232,7 +232,13 @@ void onStateChange(CRules@ this, const u8 oldState)
 			if (gatherMatch.vetoQueue.hasVotes())
 			{
 				gatherMatch.vetoQueue.Clear();
-				SendMessage("All map vetoes have been cleared due to build time ending", ConsoleColour::CRAZY);
+				SendMessage("All map vetoes have been removed due to build time ending", ConsoleColour::CRAZY);
+			}
+
+			if (gatherMatch.restartQueue.hasVotes())
+			{
+				gatherMatch.restartQueue.Clear();
+				SendMessage("All votes to restart have been removed due to build time ending", ConsoleColour::CRAZY);
 			}
 		}
 		else if (this.isGameOver())
@@ -521,6 +527,10 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 		else if (!gatherMatch.isLive())
 		{
 			SendMessage("You cannot vote to restart before the match has started", ConsoleColour::ERROR, player);
+		}
+		else if (this.isMatchRunning())
+		{
+			SendMessage("You cannot vote to restart after build time has ended", ConsoleColour::ERROR, player);
 		}
 		else
 		{
