@@ -244,7 +244,8 @@ shared class CTFSpawns : RespawnSystem
 
 	void AddPlayerToSpawn(CPlayer@ player)
 	{
-		s32 tickspawndelay = s32(CTF_core.spawnTime);
+		GatherMatch@ gatherMatch = getGatherMatch();
+		s32 tickspawndelay = gatherMatch.isInProgress() && !gatherMatch.isLive() ? 0 : s32(CTF_core.spawnTime);
 
 		CTFPlayerInfo@ info = cast < CTFPlayerInfo@ > (core.getInfoFromPlayer(player));
 

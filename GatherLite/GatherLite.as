@@ -79,6 +79,11 @@ void onTick(CRules@ this)
 			this.set_bool("gather_status", false);
 		}
 
+		if (gatherMatch.isInProgress() && !gatherMatch.isLive() && getGameTime() == 1)
+		{
+			this.SetCurrentState(GAME);
+		}
+
 		//sync gather match to clients if not localhost
 		if (!isClient())
 		{
