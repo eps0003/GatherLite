@@ -1,20 +1,20 @@
 shared class Tickets
 {
-	private uint blueTickets = 0;
-	private uint redTickets = 0;
-	private uint ticketsPerPlayer;
+	private int blueTickets = 0;
+	private int redTickets = 0;
+	private int ticketsPerPlayer;
 	private uint maxTickets = 999;
 
 	Tickets(CBitStream@ bs)
 	{
-		blueTickets = bs.read_u32();
-		redTickets = bs.read_u32();
+		blueTickets = bs.read_s32();
+		redTickets = bs.read_s32();
 	}
 
 	void Reset()
 	{
 		uint playerCount = getGatherMatch().getPlayerCount();
-		uint tickets = (playerCount * ticketsPerPlayer) / 2;
+		int tickets = ticketsPerPlayer > -1 ? (playerCount * ticketsPerPlayer) / 2 : -1;
 
 		SetBlueTickets(tickets);
 		SetRedTickets(tickets);
@@ -26,17 +26,17 @@ shared class Tickets
 		SetRedTickets(0);
 	}
 
-	uint getBlueTickets()
+	int getBlueTickets()
 	{
 		return blueTickets;
 	}
 
-	uint getRedTickets()
+	int getRedTickets()
 	{
 		return redTickets;
 	}
 
-	uint getTickets(u8 team)
+	int getTickets(u8 team)
 	{
 		switch (team)
 		{
@@ -48,17 +48,17 @@ shared class Tickets
 		return 0;
 	}
 
-	void SetBlueTickets(uint tickets)
+	void SetBlueTickets(int tickets)
 	{
-		blueTickets = Maths::Min(tickets, maxTickets);
+		blueTickets = Maths::Clamp(tickets, -1, maxTickets);
 	}
 
-	void SetRedTickets(uint tickets)
+	void SetRedTickets(int tickets)
 	{
-		redTickets = Maths::Min(tickets, maxTickets);
+		redTickets = Maths::Clamp(tickets, -1, maxTickets);
 	}
 
-	void SetTickets(u8 team, uint tickets)
+	void SetTickets(u8 team, int tickets)
 	{
 		switch (team)
 		{
@@ -73,7 +73,8 @@ shared class Tickets
 
 	bool hasTickets(u8 team)
 	{
-		return getTickets(team) > 0;
+		int tickets = getTickets(team);
+		return tickets != 0;
 	}
 
 	bool canDecrementTickets()
@@ -83,13 +84,10 @@ shared class Tickets
 
 	void DecrementTickets(u8 team)
 	{
-		if (canDecrementTickets())
+		if (canDecrementTickets() && getTickets(team) > 0)
 		{
-			if (hasTickets(team))
-			{
-				uint tickets = getTickets(team);
-				SetTickets(team, tickets - 1);
-			}
+			int tickets = getTickets(team);
+			SetTickets(team, tickets - 1);
 		}
 	}
 
@@ -99,18 +97,21 @@ shared class Tickets
 
 		GatherMatch@ gatherMatch = getGatherMatch();
 		u8 team = victim.getTeamNum();
-		uint tickets = getTickets(team);
+		int tickets = getTickets(team);
 
-		int calcTickets = tickets - gatherMatch.getDeadCount(team);
-		uint teamSize = gatherMatch.getTeamSize(team);
+		if (tickets > -1)
+		{
+			int calcTickets = tickets - gatherMatch.getDeadCount(team);
+			uint teamSize = gatherMatch.getTeamSize(team);
 
-		if (calcTickets <= 0)
-		{
-			Sound::Play("depleted.ogg");
-		}
-		else if (calcTickets <= teamSize)
-		{
-			Sound::Play("depleting.ogg");
+			if (calcTickets <= 0)
+			{
+				Sound::Play("depleted.ogg");
+			}
+			else if (calcTickets <= teamSize)
+			{
+				Sound::Play("depleting.ogg");
+			}
 		}
 	}
 
@@ -118,8 +119,11 @@ shared class Tickets
 	{
 		CRules@ rules = getRules();
 
-		uint blueTickets = getBlueTickets();
-		uint redTickets = getRedTickets();
+		int blueTickets = getBlueTickets();
+		int redTickets = getRedTickets();
+
+		string blueText = blueTickets < 0 ? "Infinite" : ("" + blueTickets);
+		string redText = redTickets < 0 ? "Infinite" : ("" + redTickets);
 
 		SColor blueColor = rules.getTeam(0).color;
 		SColor redColor = rules.getTeam(1).color;
@@ -127,18 +131,18 @@ shared class Tickets
 		Vec2f pos(440, getScreenHeight() - 100);
 
 		GUI::DrawTextCentered("Spawns Remaining", pos, color_white);
-		GUI::DrawTextCentered("" + blueTickets, pos + Vec2f(-30, 20), blueColor);
-		GUI::DrawTextCentered("" + redTickets, pos + Vec2f(30, 20), redColor);
+		GUI::DrawTextCentered("" + blueText, pos + Vec2f(-30, 20), blueColor);
+		GUI::DrawTextCentered("" + redText, pos + Vec2f(30, 20), redColor);
 	}
 
 	void LoadConfig(ConfigFile@ cfg)
 	{
-		ticketsPerPlayer = cfg.read_u32("tickets_per_player", 8);
+		ticketsPerPlayer = cfg.read_s32("tickets_per_player", 8);
 	}
 
 	void Serialize(CBitStream@ bs)
 	{
-		bs.write_u32(blueTickets);
-		bs.write_u32(redTickets);
+		bs.write_s32(blueTickets);
+		bs.write_s32(redTickets);
 	}
 }

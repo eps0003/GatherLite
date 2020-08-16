@@ -70,8 +70,8 @@ void onTick(CRules@ this)
 		if (this.get_bool("gather_status"))
 		{
 			u8 state = this.getCurrentState();
-			uint blueTickets = gatherMatch.tickets.getBlueTickets();
-			uint redTickets = gatherMatch.tickets.getRedTickets();
+			int blueTickets = gatherMatch.tickets.getBlueTickets();
+			int redTickets = gatherMatch.tickets.getRedTickets();
 			uint blueAlive = gatherMatch.getAliveCount(0);
 			uint redAlive = gatherMatch.getAliveCount(1);
 
@@ -197,7 +197,7 @@ void onBlobDie(CRules@ this, CBlob@ blob)
 		if (gatherMatch.tickets.canDecrementTickets())
 		{
 			u8 team = player.getTeamNum();
-			uint tickets = gatherMatch.tickets.getTickets(team);
+			int tickets = gatherMatch.tickets.getTickets(team);
 
 			//play ticket warning sounds
 			if (isClient())
@@ -206,7 +206,7 @@ void onBlobDie(CRules@ this, CBlob@ blob)
 			}
 
 			//end game if no more tickets and team is dead
-			if (isServer() && tickets <= 0 && gatherMatch.allPlayersDead(team))
+			if (isServer() && tickets == 0 && gatherMatch.allPlayersDead(team))
 			{
 				u8 winTeam = (team + 1) % 2;
 				string winTeamName = this.getTeam(winTeam).getName();
@@ -405,10 +405,14 @@ bool onClientProcessChat(CRules@ this, const string &in text_in, string &out tex
 	{
 		if (player.isMyPlayer())
 		{
-			uint blueTickets = gatherMatch.tickets.getBlueTickets();
-			uint redTickets = gatherMatch.tickets.getRedTickets();
-			client_AddToChat("Blue tickets: " + blueTickets, ConsoleColour::INFO);
-			client_AddToChat("Red tickets: " + redTickets, ConsoleColour::INFO);
+			int blueTickets = gatherMatch.tickets.getBlueTickets();
+			int redTickets = gatherMatch.tickets.getRedTickets();
+
+			string blueText = blueTickets < 0 ? "Infinite" : ("" + blueTickets);
+			string redText = redTickets < 0 ? "Infinite" : ("" + redTickets);
+
+			client_AddToChat("Blue tickets: " + blueText, ConsoleColour::INFO);
+			client_AddToChat("Red tickets: " + redText, ConsoleColour::INFO);
 		}
 	}
 	else
@@ -694,10 +698,12 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 		}
 		else
 		{
-			uint tickets = parseInt(args[0]);
+			int tickets = parseInt(args[0]);
 			gatherMatch.tickets.SetBlueTickets(tickets);
 			tickets = gatherMatch.tickets.getBlueTickets();
-			SendMessage("Blue Team now has " + tickets + " " + plural(tickets, "ticket"), ConsoleColour::CRAZY);
+
+			string text = tickets < 0 ? "infinite" : ("" + tickets);
+			SendMessage("Blue Team now has " + text + " " + plural(tickets, "ticket"), ConsoleColour::CRAZY);
 		}
 	}
 	else if (command == "setredtickets")
@@ -716,10 +722,12 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 		}
 		else
 		{
-			uint tickets = parseInt(args[0]);
+			int tickets = parseInt(args[0]);
 			gatherMatch.tickets.SetRedTickets(tickets);
 			tickets = gatherMatch.tickets.getRedTickets();
-			SendMessage("Red Team now has " + tickets + " " + plural(tickets, "ticket"), ConsoleColour::CRAZY);
+
+			string text = tickets < 0 ? "infinite" : ("" + tickets);
+			SendMessage("Red Team now has " + text + " " + plural(tickets, "ticket"), ConsoleColour::CRAZY);
 		}
 	}
 	else if (command == "settickets")
@@ -738,14 +746,16 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 		}
 		else
 		{
-			uint tickets = parseInt(args[0]);
+			string arg = args[0].toLower();
+			int tickets = arg == "infinite" || arg == "unlimited" ? -1 : parseInt(args[0]);
 
 			gatherMatch.tickets.SetBlueTickets(tickets);
 			gatherMatch.tickets.SetRedTickets(tickets);
 
 			tickets = gatherMatch.tickets.getBlueTickets();
 
-			SendMessage("Both teams now have " + tickets + " " + plural(tickets, "ticket"), ConsoleColour::CRAZY);
+			string text = tickets < 0 ? "infinite" : ("" + tickets);
+			SendMessage("Both teams now have " + text + " " + plural(tickets, "ticket"), ConsoleColour::CRAZY);
 		}
 	}
 	else if (command == "addtickets")
@@ -764,13 +774,20 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 		}
 		else
 		{
-			uint tickets = parseInt(args[0]);
+			int tickets = parseInt(args[0]);
 
-			uint blueTickets = gatherMatch.tickets.getBlueTickets() + tickets;
-			uint redTickets = gatherMatch.tickets.getRedTickets() + tickets;
+			int blueTickets = gatherMatch.tickets.getBlueTickets();
+			int redTickets = gatherMatch.tickets.getRedTickets();
 
-			gatherMatch.tickets.SetBlueTickets(blueTickets);
-			gatherMatch.tickets.SetRedTickets(redTickets);
+			if (blueTickets > -1)
+			{
+				gatherMatch.tickets.SetBlueTickets(blueTickets + tickets);
+			}
+
+			if (redTickets > -1)
+			{
+				gatherMatch.tickets.SetRedTickets(redTickets + tickets);
+			}
 
 			SendMessage("Both teams now have " + tickets + " more " + plural(tickets, "ticket"), ConsoleColour::CRAZY);
 		}
@@ -791,13 +808,20 @@ bool onServerProcessChat(CRules@ this, const string& in text_in, string& out tex
 		}
 		else
 		{
-			uint tickets = parseInt(args[0]);
+			int tickets = parseInt(args[0]);
 
-			int blueTickets = gatherMatch.tickets.getBlueTickets() - tickets;
-			int redTickets = gatherMatch.tickets.getRedTickets() - tickets;
+			int blueTickets = gatherMatch.tickets.getBlueTickets();
+			int redTickets = gatherMatch.tickets.getRedTickets();
 
-			blueTickets = Maths::Max(0, blueTickets);
-			redTickets = Maths::Max(0, redTickets);
+			if (blueTickets > 0)
+			{
+				blueTickets = Maths::Max(0, blueTickets - tickets);
+			}
+
+			if (redTickets > 0)
+			{
+				redTickets = Maths::Max(0, redTickets - tickets);
+			}
 
 			gatherMatch.tickets.SetBlueTickets(blueTickets);
 			gatherMatch.tickets.SetRedTickets(redTickets);

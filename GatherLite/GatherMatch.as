@@ -123,8 +123,8 @@ shared class GatherMatch
 
 			s8 winningTeam = rules.getTeamWon();
 			uint duration = (isLive() && !rules.isWarmup()) ? (getGameTime() - rules.get_u32("start_time")) : 0;
-			uint blueTickets = tickets.getBlueTickets();
-			uint redTickets = tickets.getRedTickets();
+			int blueTickets = tickets.getBlueTickets();
+			int redTickets = tickets.getRedTickets();
 			string[] mapPath = getMap().getMapName().split("/");
 			string map = mapPath[mapPath.length - 1];
 			map = map.substr(0, map.length - 4);
