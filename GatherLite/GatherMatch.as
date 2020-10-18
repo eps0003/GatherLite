@@ -117,9 +117,6 @@ shared class GatherMatch
 		if (isInProgress())
 		{
 			CRules@ rules = getRules();
-			rules.clear("blue_team");
-			rules.clear("red_team");
-			SyncTeams();
 
 			s8 winningTeam = rules.getTeamWon();
 			uint duration = (isLive() && !rules.isWarmup()) ? (getGameTime() - rules.get_u32("start_time")) : 0;
@@ -131,8 +128,12 @@ shared class GatherMatch
 
 			matchIsLive = false;
 
-			tcpr("<gather> ended " + cause + " " + winningTeam + " " + duration + " " + map + " " + blueTickets + " " + redTickets);
+			tcpr("<gather> ended " + cause + " " + winningTeam + " " + duration + " " + map + " " + blueTickets + " " + redTickets + stringifyStats());
 			SendMessage("===================== Match ended! ======================", ConsoleColour::CRAZY);
+
+			rules.clear("blue_team");
+			rules.clear("red_team");
+			SyncTeams();
 		}
 	}
 
@@ -478,5 +479,39 @@ shared class GatherMatch
 		restartQueue.Clean();
 		vetoQueue.Clean();
 		scrambleQueue.Clean();
+	}
+
+	private string stringifyStats()
+	{
+		string stats;
+
+		string[] blueTeam = getBlueTeam();
+		for (uint i = 0; i < blueTeam.length; i++)
+		{
+			string username = blueTeam[i];
+			CPlayer@ player = getPlayerByUsername(username);
+
+			stats += " " + stringifyStats(player);
+		}
+
+		string[] redTeam = getRedTeam();
+		for (uint i = 0; i < redTeam.length; i++)
+		{
+			string username = redTeam[i];
+			CPlayer@ player = getPlayerByUsername(username);
+
+			stats += " " + stringifyStats(player);
+		}
+
+		return stats;
+	}
+
+	private string stringifyStats(CPlayer@ player)
+	{
+		int kills = player.getKills();
+		int deaths = player.getDeaths();
+		int assists = player.getAssists();
+
+		return kills + " " + deaths + " " + assists;
 	}
 }
