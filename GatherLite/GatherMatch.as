@@ -4,6 +4,7 @@
 #include "VetoQueue.as"
 #include "ScrambleQueue.as"
 #include "Tickets.as"
+#include "StatsManager.as"
 
 shared enum MatchEndCause
 {
@@ -35,6 +36,7 @@ shared class GatherMatch
 	VetoQueue@ vetoQueue = VetoQueue();
 	ScrambleQueue@ scrambleQueue = ScrambleQueue();
 	Tickets@ tickets = Tickets();
+	StatsManager@ stats = StatsManager();
 
 	private bool matchIsLive = false;
 
@@ -69,6 +71,9 @@ shared class GatherMatch
 		CleanQueues();
 		SyncTeams();
 
+		//initialize stats for new players
+		stats.Initialize();
+
 		//the final non-ready player might have been removed
 		if (readyQueue.isEveryoneReady())
 		{
@@ -83,6 +88,9 @@ shared class GatherMatch
 
 		readyQueue.Clear();
 		scrambleQueue.Clear();
+
+		//completely reset stats since we have new teams
+		stats.Reset();
 
 		LoadNextMap();
 		SyncTeams();
@@ -128,7 +136,7 @@ shared class GatherMatch
 
 			matchIsLive = false;
 
-			tcpr("<gather> ended " + cause + " " + winningTeam + " " + duration + " " + map + " " + blueTickets + " " + redTickets + stringifyStats());
+			tcpr("<gather> ended " + cause + " " + winningTeam + " " + duration + " " + map + " " + blueTickets + " " + redTickets + " " + stats.stringify());
 			SendMessage("===================== Match ended! ======================", ConsoleColour::CRAZY);
 
 			rules.clear("blue_team");
@@ -369,6 +377,7 @@ shared class GatherMatch
 
 	void ResetScoreboard()
 	{
+		//clear scoreboard
 		for (uint i = 0; i < getPlayersCount(); i++)
 		{
 			CPlayer@ player = getPlayer(i);
@@ -479,39 +488,5 @@ shared class GatherMatch
 		restartQueue.Clean();
 		vetoQueue.Clean();
 		scrambleQueue.Clean();
-	}
-
-	private string stringifyStats()
-	{
-		string stats;
-
-		string[] blueTeam = getBlueTeam();
-		for (uint i = 0; i < blueTeam.length; i++)
-		{
-			string username = blueTeam[i];
-			CPlayer@ player = getPlayerByUsername(username);
-
-			stats += " " + stringifyStats(player);
-		}
-
-		string[] redTeam = getRedTeam();
-		for (uint i = 0; i < redTeam.length; i++)
-		{
-			string username = redTeam[i];
-			CPlayer@ player = getPlayerByUsername(username);
-
-			stats += " " + stringifyStats(player);
-		}
-
-		return stats;
-	}
-
-	private string stringifyStats(CPlayer@ player)
-	{
-		int kills = player.getKills();
-		int deaths = player.getDeaths();
-		int assists = player.getAssists();
-
-		return kills + " " + deaths + " " + assists;
 	}
 }
