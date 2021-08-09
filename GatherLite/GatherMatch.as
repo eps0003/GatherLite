@@ -351,10 +351,12 @@ shared class GatherMatch
 		for (uint i = 0; i < getPlayersCount(); i++)
 		{
 			CPlayer@ player = getPlayer(i);
-
-			player.setKills(0);
-			player.setDeaths(0);
-			player.setAssists(0);
+			if (player !is null)
+			{
+				player.setKills(0);
+				player.setDeaths(0);
+				player.setAssists(0);
+			}
 		}
 	}
 
