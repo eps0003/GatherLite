@@ -5,11 +5,6 @@ shared class ScrambleQueue
 	private Queue queue;
 	private float requirement;
 
-	ScrambleQueue(CBitStream@ bs)
-	{
-		queue = Queue(bs);
-	}
-
 	void Add(string username)
 	{
 		if (queue.Add(username))
@@ -91,6 +86,11 @@ shared class ScrambleQueue
 	void Serialize(CBitStream@ bs)
 	{
 		queue.Serialize(bs);
+	}
+
+	bool deserialize(CBitStream@ bs)
+	{
+		return queue.deserialize(bs);
 	}
 
 	void LoadConfig(ConfigFile@ cfg)

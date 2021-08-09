@@ -2,16 +2,6 @@ shared class Queue
 {
 	private string[] players;
 
-	Queue(CBitStream@ bs)
-	{
-		uint count = bs.read_u32();
-		players.set_length(count);
-		for (uint i = 0; i < count; i++)
-		{
-			players[i] = bs.read_string();
-		}
-	}
-
 	bool Add(string username)
 	{
 		if (!isInQueue(username))
@@ -67,5 +57,23 @@ shared class Queue
 		{
 			bs.write_string(players[i]);
 		}
+	}
+
+	bool deserialize(CBitStream@ bs)
+	{
+		players.clear();
+
+		uint count;
+		if (!bs.saferead_u32(count)) return false;
+
+		for (uint i = 0; i < count; i++)
+		{
+			string username;
+			if (!bs.saferead_string(username)) return false;
+
+			players.push_back(username);
+		}
+
+		return true;
 	}
 }

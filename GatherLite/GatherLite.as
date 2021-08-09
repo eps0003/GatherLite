@@ -858,8 +858,12 @@ void onCommand(CRules@ this, u8 cmd, CBitStream@ params)
 	{
 		if (isClient())
 		{
-			string message = params.read_string();
-			SColor color(params.read_u32());
+			string message;
+			if (!params.saferead_string(message)) return;
+
+			uint color;
+			if (!params.saferead_u32(color)) return;
+
 			client_AddToChat(message, color);
 		}
 	}
@@ -867,7 +871,9 @@ void onCommand(CRules@ this, u8 cmd, CBitStream@ params)
 	{
 		if (isClient())
 		{
-			GatherMatch gatherMatch(params);
+			GatherMatch gatherMatch;
+			if (!gatherMatch.deserialize(params)) return;
+
 			this.set("gather_match", gatherMatch);
 		}
 	}
@@ -875,7 +881,7 @@ void onCommand(CRules@ this, u8 cmd, CBitStream@ params)
 	{
 		if (isClient())
 		{
-			getGatherMatch().DeserializeTeams(params);
+			getGatherMatch().deserializeTeams(params);
 		}
 	}
 }

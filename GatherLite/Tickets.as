@@ -5,12 +5,6 @@ shared class Tickets
 	private int ticketsPerPlayer;
 	private uint maxTickets = 999;
 
-	Tickets(CBitStream@ bs)
-	{
-		blueTickets = bs.read_s32();
-		redTickets = bs.read_s32();
-	}
-
 	void Reset()
 	{
 		uint playerCount = getGatherMatch().getPlayerCount();
@@ -144,5 +138,10 @@ shared class Tickets
 	{
 		bs.write_s32(blueTickets);
 		bs.write_s32(redTickets);
+	}
+
+	bool deserialize(CBitStream@ bs)
+	{
+		return bs.saferead_s32(blueTickets) && bs.saferead_s32(redTickets);
 	}
 }
