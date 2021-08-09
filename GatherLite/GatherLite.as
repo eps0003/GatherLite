@@ -196,27 +196,15 @@ void onBlobDie(CRules@ this, CBlob@ blob)
 
 		if (gatherMatch.tickets.canDecrementTickets())
 		{
-			u8 team = player.getTeamNum();
-			int tickets = gatherMatch.tickets.getTickets(team);
-
 			//play ticket warning sounds
 			if (isClient())
 			{
 				gatherMatch.tickets.PlaySound(player);
 			}
 
-			//end game if no more tickets and team is dead
-			if (isServer() && tickets == 0 && gatherMatch.allPlayersDead(team))
+			if (isServer())
 			{
-				u8 winTeam = (team + 1) % 2;
-				string winTeamName = this.getTeam(winTeam).getName();
-
-				this.SetTeamWon(winTeam);
-				this.SetCurrentState(GAME_OVER);
-				this.SetGlobalMessage("{WINNING_TEAM} wins the game!");
-				this.AddGlobalMessageReplacement("WINNING_TEAM", winTeamName);
-
-				gatherMatch.EndMatch(MatchEndCause::Tickets);
+				gatherMatch.CheckWin(player.getTeamNum());
 			}
 		}
 	}

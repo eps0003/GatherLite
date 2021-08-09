@@ -360,6 +360,28 @@ shared class GatherMatch
 		}
 	}
 
+	void CheckWin(u8 team)
+	{
+		if (tickets.canDecrementTickets())
+		{
+			//end game if no more tickets and team is dead
+			if (!tickets.hasTickets(team) && allPlayersDead(team))
+			{
+				CRules@ rules = getRules();
+
+				u8 winTeam = (team + 1) % 2;
+				string winTeamName = rules.getTeam(winTeam).getName();
+
+				rules.SetTeamWon(winTeam);
+				rules.SetCurrentState(GAME_OVER);
+				rules.SetGlobalMessage("{WINNING_TEAM} wins the game!");
+				rules.AddGlobalMessageReplacement("WINNING_TEAM", winTeamName);
+
+				EndMatch(MatchEndCause::Tickets);
+			}
+		}
+	}
+
 	void LoadConfig()
 	{
 		ConfigFile@ cfg = ConfigFile();

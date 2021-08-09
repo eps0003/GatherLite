@@ -45,11 +45,21 @@ shared class Tickets
 	void SetBlueTickets(int tickets)
 	{
 		blueTickets = Maths::Clamp(tickets, -1, maxTickets);
+
+		if (!hasTickets(0))
+		{
+			getGatherMatch().CheckWin(0);
+		}
 	}
 
 	void SetRedTickets(int tickets)
 	{
 		redTickets = Maths::Clamp(tickets, -1, maxTickets);
+
+		if (!hasTickets(1))
+		{
+			getGatherMatch().CheckWin(1);
+		}
 	}
 
 	void SetTickets(u8 team, int tickets)
