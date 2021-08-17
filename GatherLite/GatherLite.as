@@ -4,6 +4,7 @@
 #include "WelcomeBanner.as"
 
 string PREFIX = "!";
+bool playedStartSound = false;
 
 void onInit(CRules@ this)
 {
@@ -21,16 +22,22 @@ void onInit(CRules@ this)
 
 void onRestart(CRules@ this)
 {
-	if (!isServer()) return;
+	if (isServer())
+	{
+		this.set_bool("managed teams", true); //core shouldn't try to manage the teams
 
-	this.set_bool("managed teams", true); //core shouldn't try to manage the teams
+		GatherMatch@ gatherMatch = getGatherMatch();
+		gatherMatch.restartQueue.Clear();
+		gatherMatch.vetoQueue.Clear();
+		gatherMatch.tickets.Reset();
+		gatherMatch.MovePlayersToTeams();
+		gatherMatch.ResetScoreboard();
+	}
 
-	GatherMatch@ gatherMatch = getGatherMatch();
-	gatherMatch.restartQueue.Clear();
-	gatherMatch.vetoQueue.Clear();
-	gatherMatch.tickets.Reset();
-	gatherMatch.MovePlayersToTeams();
-	gatherMatch.ResetScoreboard();
+	if (isClient())
+	{
+		playedStartSound = false;
+	}
 }
 
 void onTCPRDisconnect(CRules@ this)
@@ -40,15 +47,21 @@ void onTCPRDisconnect(CRules@ this)
 
 void onTick(CRules@ this)
 {
+	GatherMatch@ gatherMatch = getGatherMatch();
+
 	if (isClient())
 	{
 		WelcomeBanner::LoadConfig();
+
+		if (gatherMatch.isLive() && !playedStartSound)
+		{
+			Sound::Play("party_join.ogg");
+			playedStartSound = true;
+		}
 	}
 
 	if (isServer())
 	{
-		GatherMatch@ gatherMatch = getGatherMatch();
-
 		if (this.get_bool("gather_teams_set"))
 		{
 			gatherMatch.ReceivedTeams();
