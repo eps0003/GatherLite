@@ -209,8 +209,6 @@ void onBlobDie(CRules@ this, CBlob@ blob)
 
 		if (gatherMatch.tickets.canDecrementTickets())
 		{
-			gatherMatch.stats.BlobDie(this, blob);
-
 			u8 team = player.getTeamNum();
 			int tickets = gatherMatch.tickets.getTickets(team);
 

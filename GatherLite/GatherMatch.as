@@ -4,7 +4,6 @@
 #include "VetoQueue.as"
 #include "ScrambleQueue.as"
 #include "Tickets.as"
-#include "StatsManager.as"
 
 shared enum MatchEndCause
 {
@@ -36,7 +35,6 @@ shared class GatherMatch
 	VetoQueue@ vetoQueue = VetoQueue();
 	ScrambleQueue@ scrambleQueue = ScrambleQueue();
 	Tickets@ tickets = Tickets();
-	StatsManager@ stats = StatsManager();
 
 	private bool matchIsLive = false;
 
@@ -50,9 +48,6 @@ shared class GatherMatch
 		MovePlayersToTeams();
 		CleanQueues();
 		SyncTeams();
-
-		//initialize stats for new players
-		stats.Initialize();
 
 		//the final non-ready player might have been removed
 		if (readyQueue.isEveryoneReady())
@@ -68,9 +63,6 @@ shared class GatherMatch
 
 		readyQueue.Clear();
 		scrambleQueue.Clear();
-
-		//completely reset stats since we have new teams
-		stats.Reset();
 
 		LoadNextMap();
 		SyncTeams();
@@ -105,6 +97,9 @@ shared class GatherMatch
 		if (isInProgress())
 		{
 			CRules@ rules = getRules();
+			rules.clear("blue_team");
+			rules.clear("red_team");
+			SyncTeams();
 
 			s8 winningTeam = rules.getTeamWon();
 			uint duration = (isLive() && !rules.isWarmup()) ? (getGameTime() - rules.get_u32("start_time")) : 0;
@@ -116,12 +111,8 @@ shared class GatherMatch
 
 			matchIsLive = false;
 
-			tcpr("<gather> ended " + cause + " " + winningTeam + " " + duration + " " + map + " " + blueTickets + " " + redTickets + " " + stats.stringify());
+			tcpr("<gather> ended " + cause + " " + winningTeam + " " + duration + " " + map + " " + blueTickets + " " + redTickets);
 			SendMessage("===================== Match ended! ======================", ConsoleColour::CRAZY);
-
-			rules.clear("blue_team");
-			rules.clear("red_team");
-			SyncTeams();
 		}
 	}
 
@@ -357,7 +348,6 @@ shared class GatherMatch
 
 	void ResetScoreboard()
 	{
-		//clear scoreboard
 		for (uint i = 0; i < getPlayersCount(); i++)
 		{
 			CPlayer@ player = getPlayer(i);
