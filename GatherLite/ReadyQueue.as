@@ -4,11 +4,6 @@ shared class ReadyQueue
 {
 	private Queue queue;
 
-	ReadyQueue(CBitStream@ bs)
-	{
-		queue = Queue(bs);
-	}
-
 	void Add(string username)
 	{
 		if (queue.Add(username))
@@ -143,5 +138,10 @@ shared class ReadyQueue
 	void Serialize(CBitStream@ bs)
 	{
 		queue.Serialize(bs);
+	}
+
+	bool deserialize(CBitStream@ bs)
+	{
+		return queue.deserialize(bs);
 	}
 }

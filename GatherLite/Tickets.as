@@ -5,12 +5,6 @@ shared class Tickets
 	private int ticketsPerPlayer;
 	private uint maxTickets = 999;
 
-	Tickets(CBitStream@ bs)
-	{
-		blueTickets = bs.read_s32();
-		redTickets = bs.read_s32();
-	}
-
 	void Reset()
 	{
 		uint playerCount = getGatherMatch().getPlayerCount();
@@ -51,11 +45,21 @@ shared class Tickets
 	void SetBlueTickets(int tickets)
 	{
 		blueTickets = Maths::Clamp(tickets, -1, maxTickets);
+
+		if (!hasTickets(0))
+		{
+			getGatherMatch().CheckWin(0);
+		}
 	}
 
 	void SetRedTickets(int tickets)
 	{
 		redTickets = Maths::Clamp(tickets, -1, maxTickets);
+
+		if (!hasTickets(1))
+		{
+			getGatherMatch().CheckWin(1);
+		}
 	}
 
 	void SetTickets(u8 team, int tickets)
@@ -144,5 +148,10 @@ shared class Tickets
 	{
 		bs.write_s32(blueTickets);
 		bs.write_s32(redTickets);
+	}
+
+	bool deserialize(CBitStream@ bs)
+	{
+		return bs.saferead_s32(blueTickets) && bs.saferead_s32(redTickets);
 	}
 }

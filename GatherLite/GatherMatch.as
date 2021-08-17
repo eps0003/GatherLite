@@ -45,26 +45,6 @@ shared class GatherMatch
 		LoadConfig();
 	}
 
-	GatherMatch(CBitStream@ bs)
-	{
-		matchIsLive = bs.read_bool();
-
-		if (isInProgress())
-		{
-			if (matchIsLive)
-			{
-				// restartQueue = RestartQueue(bs);
-				// vetoQueue = VetoQueue(bs);
-				// scrambleQueue = ScrambleQueue(bs);
-				tickets = Tickets(bs);
-			}
-			else
-			{
-				readyQueue = ReadyQueue(bs);
-			}
-		}
-	}
-
 	void UpdatedTeams()
 	{
 		MovePlayersToTeams();
@@ -381,10 +361,34 @@ shared class GatherMatch
 		for (uint i = 0; i < getPlayersCount(); i++)
 		{
 			CPlayer@ player = getPlayer(i);
+			if (player !is null)
+			{
+				player.setKills(0);
+				player.setDeaths(0);
+				player.setAssists(0);
+			}
+		}
+	}
 
-			player.setKills(0);
-			player.setDeaths(0);
-			player.setAssists(0);
+	void CheckWin(u8 team)
+	{
+		if (tickets.canDecrementTickets())
+		{
+			//end game if no more tickets and team is dead
+			if (!tickets.hasTickets(team) && allPlayersDead(team))
+			{
+				CRules@ rules = getRules();
+
+				u8 winTeam = (team + 1) % 2;
+				string winTeamName = rules.getTeam(winTeam).getName();
+
+				rules.SetTeamWon(winTeam);
+				rules.SetCurrentState(GAME_OVER);
+				rules.SetGlobalMessage("{WINNING_TEAM} wins the game!");
+				rules.AddGlobalMessageReplacement("WINNING_TEAM", winTeamName);
+
+				EndMatch(MatchEndCause::Tickets);
+			}
 		}
 	}
 
@@ -424,25 +428,59 @@ shared class GatherMatch
 		}
 	}
 
-	void DeserializeTeams(CBitStream@ bs)
+	bool deserialize(CBitStream@ bs)
 	{
-		uint blueCount = bs.read_u32();
-		string[] blueTeam(blueCount);
-		for (uint i = 0; i < blueCount; i++)
+		if (!bs.saferead_bool(matchIsLive)) return false;
+
+		if (isInProgress())
 		{
-			blueTeam[i] = bs.read_string();
+			if (matchIsLive)
+			{
+				// if (!restartQueue.deserialize(bs)) return false;
+				// if (!vetoQueue.deserialize(bs)) return false;
+				// if (!scrambleQueue.deserialize(bs)) return false;
+				if (!tickets.deserialize(bs)) return false;
+			}
+			else
+			{
+				if (!readyQueue.deserialize(bs)) return false;
+			}
 		}
 
-		uint redCount = bs.read_u32();
-		string[] redTeam(redCount);
+		return true;
+	}
+
+	bool deserializeTeams(CBitStream@ bs)
+	{
+		uint blueCount;
+		if (!bs.saferead_u32(blueCount)) return false;
+
+		string[] blueTeam;
+		for (uint i = 0; i < blueCount; i++)
+		{
+			string username;
+			if (!bs.saferead_string(username)) return false;
+
+			blueTeam.push_back(username);
+		}
+
+		uint redCount;
+		if (!bs.saferead_u32(redCount)) return false;
+
+		string[] redTeam;
 		for (uint i = 0; i < redCount; i++)
 		{
-			redTeam[i] = bs.read_string();
+			string username;
+			if (!bs.saferead_string(username)) return false;
+
+			redTeam.push_back(username);
 		}
 
 		CRules@ rules = getRules();
 		rules.set("blue_team", blueTeam);
 		rules.set("red_team", redTeam);
+
+		return true;
 	}
 
 	void SyncTeams()
