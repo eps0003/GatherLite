@@ -4,7 +4,7 @@
 #include "WelcomeBanner.as"
 
 string PREFIX = "!";
-bool playedStartSound = false;
+bool playedStartSound = true;
 
 void onInit(CRules@ this)
 {
@@ -17,10 +17,20 @@ void onInit(CRules@ this)
 		WelcomeBanner::Init();
 	}
 
-	onRestart(this);
+	onInitRestart(this);
 }
 
 void onRestart(CRules@ this)
+{
+	onInitRestart(this);
+
+	if (isClient())
+	{
+		playedStartSound = false;
+	}
+}
+
+void onInitRestart(CRules@ this)
 {
 	if (isServer())
 	{
@@ -32,11 +42,6 @@ void onRestart(CRules@ this)
 		gatherMatch.tickets.Reset();
 		gatherMatch.MovePlayersToTeams();
 		gatherMatch.ResetScoreboard();
-	}
-
-	if (isClient())
-	{
-		playedStartSound = false;
 	}
 }
 
@@ -209,8 +214,6 @@ void onBlobDie(CRules@ this, CBlob@ blob)
 
 		if (gatherMatch.tickets.canDecrementTickets())
 		{
-			gatherMatch.stats.BlobDie(this, blob);
-
 			u8 team = player.getTeamNum();
 			int tickets = gatherMatch.tickets.getTickets(team);
 
