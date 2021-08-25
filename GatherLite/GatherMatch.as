@@ -126,6 +126,11 @@ shared class GatherMatch
 		return matchIsLive;
 	}
 
+	bool isPreMatch()
+	{
+		return isInProgress() && !isLive();
+	}
+
 	bool isParticipating(string username)
 	{
 		return getTeamNum(username) != getRules().getSpectatorTeamNum();
