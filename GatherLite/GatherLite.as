@@ -97,7 +97,7 @@ void onTick(CRules@ this)
 			this.set_bool("gather_status", false);
 		}
 
-		if (gatherMatch.isInProgress() && !gatherMatch.isLive() && this.isWarmup())
+		if (gatherMatch.isInProgress() && !gatherMatch.isLive() && this.isWarmup() && getGameTime() > 0)
 		{
 			this.SetCurrentState(GAME);
 		}
