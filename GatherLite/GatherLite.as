@@ -225,7 +225,10 @@ void onPlayerDie(CRules@ this, CPlayer@ victim, CPlayer@ attacker, u8 customData
 		//end game if no more tickets and team is dead
 		if (isServer())
 		{
-			gatherMatch.tickets.DoTicketTug(otherTeam);
+			if (attacker !is null && attacker.getTeamNum() != team)
+			{
+				gatherMatch.tickets.DoTicketTug(otherTeam);
+			}
 
 			if (tickets == 0 && teamDead)
 			{
