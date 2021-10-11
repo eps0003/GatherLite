@@ -4,6 +4,7 @@ shared class Tickets
 	private int redTickets = 0;
 	private int ticketsPerPlayer;
 	private uint maxTickets = 999;
+	private bool ticketTug;
 
 	void Reset()
 	{
@@ -119,6 +120,19 @@ shared class Tickets
 		}
 	}
 
+	void DoTicketTug(u8 team)
+	{
+		if (!ticketTug) return;
+
+		GatherMatch@ gatherMatch = getGatherMatch();
+		int tickets = getTickets(team);
+		uint teamSize = gatherMatch.getTeamSize(team);
+
+		if (tickets >= teamSize) return;
+
+		SetTickets(team, tickets + 1);
+	}
+
 	void RenderHUD()
 	{
 		CRules@ rules = getRules();
@@ -142,6 +156,7 @@ shared class Tickets
 	void LoadConfig(ConfigFile@ cfg)
 	{
 		ticketsPerPlayer = cfg.read_s32("tickets_per_player", 8);
+		ticketTug = cfg.read_bool("ticket_tug", false);
 	}
 
 	void Serialize(CBitStream@ bs)

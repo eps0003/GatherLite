@@ -209,6 +209,7 @@ void onPlayerDie(CRules@ this, CPlayer@ victim, CPlayer@ attacker, u8 customData
 	if (gatherMatch.tickets.canDecrementTickets())
 	{
 		u8 team = victim.getTeamNum();
+		u8 otherTeam = (team + 1) % 2;
 		int tickets = gatherMatch.tickets.getTickets(team);
 		uint aliveCount = gatherMatch.getAliveCount(team);
 
@@ -222,17 +223,21 @@ void onPlayerDie(CRules@ this, CPlayer@ victim, CPlayer@ attacker, u8 customData
 		}
 
 		//end game if no more tickets and team is dead
-		if (isServer() && tickets == 0 && teamDead)
+		if (isServer())
 		{
-			u8 winTeam = (team + 1) % 2;
-			string winTeamName = this.getTeam(winTeam).getName();
+			gatherMatch.tickets.DoTicketTug(otherTeam);
 
-			this.SetTeamWon(winTeam);
-			this.SetCurrentState(GAME_OVER);
-			this.SetGlobalMessage("{WINNING_TEAM} wins the game!");
-			this.AddGlobalMessageReplacement("WINNING_TEAM", winTeamName);
+			if (tickets == 0 && teamDead)
+			{
+				string winTeamName = this.getTeam(otherTeam).getName();
 
-			gatherMatch.EndMatch(MatchEndCause::Tickets);
+				this.SetTeamWon(otherTeam);
+				this.SetCurrentState(GAME_OVER);
+				this.SetGlobalMessage("{WINNING_TEAM} wins the game!");
+				this.AddGlobalMessageReplacement("WINNING_TEAM", winTeamName);
+
+				gatherMatch.EndMatch(MatchEndCause::Tickets);
+			}
 		}
 	}
 }
