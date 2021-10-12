@@ -82,6 +82,11 @@ shared class Tickets
 		return tickets != 0;
 	}
 
+	int getPredictedTickets(u8 team)
+	{
+		return getTickets(team) - getGatherMatch().getDeadCount(team);
+	}
+
 	bool canDecrementTickets()
 	{
 		return getGatherMatch().isLive() && getRules().isMatchRunning();
@@ -102,18 +107,17 @@ shared class Tickets
 
 		GatherMatch@ gatherMatch = getGatherMatch();
 		u8 team = victim.getTeamNum();
-		int tickets = getTickets(team);
+		int tickets = getPredictedTickets(team);
 
 		if (tickets > -1)
 		{
-			int calcTickets = tickets - gatherMatch.getDeadCount(team);
 			uint teamSize = gatherMatch.getTeamSize(team);
 
-			if (calcTickets <= 0)
+			if (tickets <= 0)
 			{
 				Sound::Play("depleted.ogg");
 			}
-			else if (calcTickets <= teamSize)
+			else if (tickets <= teamSize)
 			{
 				Sound::Play("depleting.ogg");
 			}
@@ -124,13 +128,12 @@ shared class Tickets
 	{
 		if (!ticketTug) return;
 
-		GatherMatch@ gatherMatch = getGatherMatch();
-		int tickets = getTickets(team);
-		uint teamSize = gatherMatch.getTeamSize(team);
+		int predictedTickets = getPredictedTickets(team);
+		uint teamSize = getGatherMatch().getTeamSize(team);
 
-		if (tickets >= teamSize) return;
+		if (predictedTickets >= teamSize) return;
 
-		SetTickets(team, tickets + 1);
+		SetTickets(team, getTickets(team) + 1);
 	}
 
 	void RenderHUD()
