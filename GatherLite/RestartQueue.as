@@ -5,6 +5,13 @@ shared class RestartQueue
 	private Queue queue;
 	private float requirement;
 
+	private GatherMatch@ gatherMatch;
+
+	RestartQueue(GatherMatch@ gatherMatch)
+	{
+		@this.gatherMatch = gatherMatch;
+	}
+
 	void Add(string username)
 	{
 		if (queue.Add(username))
@@ -14,7 +21,7 @@ shared class RestartQueue
 
 			if (enoughVotes)
 			{
-				getGatherMatch().RestartMap();
+				gatherMatch.RestartMap();
 			}
 			else if (queue.getCount() == 1)
 			{
@@ -65,7 +72,7 @@ shared class RestartQueue
 
 	private uint getTotal()
 	{
-		return Maths::Max(1, getGatherMatch().getPlayerCount() * requirement);
+		return Maths::Max(1, gatherMatch.getPlayerCount() * requirement);
 	}
 
 	private bool hasEnoughVotes()
@@ -75,7 +82,6 @@ shared class RestartQueue
 
 	void Clean()
 	{
-		GatherMatch@ gatherMatch = getGatherMatch();
 		string[] players = queue.getPlayers();
 		for (uint i = 0; i < players.length; i++)
 		{
