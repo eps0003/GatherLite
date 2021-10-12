@@ -131,16 +131,22 @@ shared class Tickets
 		}
 	}
 
-	void DoTicketTug(u8 team)
+	private bool isTicketTugActive(u8 team)
 	{
-		if (!ticketTug) return;
+		if (!ticketTug) return false;
 
 		int predictedTickets = getPredictedTickets(team);
 		uint teamSize = gatherMatch.getTeamSize(team);
 
-		if (predictedTickets >= teamSize) return;
+		return predictedTickets < teamSize;
+	}
 
-		SetTickets(team, getTickets(team) + 1);
+	void DoTicketTug(u8 team)
+	{
+		if (isTicketTugActive(team))
+		{
+			SetTickets(team, getTickets(team) + 1);
+		}
 	}
 
 	void RenderHUD()
@@ -154,11 +160,19 @@ shared class Tickets
 		SColor blueColor = rules.getTeam(0).color;
 		SColor redColor = rules.getTeam(1).color;
 
+		bool blueTug = isTicketTugActive(0);
+		bool redTug = isTicketTugActive(1);
+
 		Vec2f pos(440, getScreenHeight() - 100);
 
 		GUI::DrawTextCentered("Spawns Remaining", pos, color_white);
-		GUI::DrawTextCentered("" + blueText, pos + Vec2f(-30, 20), blueColor);
-		GUI::DrawTextCentered("" + redText, pos + Vec2f(30, 20), redColor);
+		GUI::DrawTextCentered("" + blueText + (blueTug ? "*" : ""), pos + Vec2f(-30, 20), blueColor);
+		GUI::DrawTextCentered("" + redText + (redTug ? "*" : ""), pos + Vec2f(30, 20), redColor);
+
+		if (blueTug || redTug)
+		{
+			GUI::DrawTextCentered("Ticket tug active", pos + Vec2f(0, 40), SColor(255, 100, 100, 100));
+		}
 	}
 
 	void LoadConfig(ConfigFile@ cfg)
