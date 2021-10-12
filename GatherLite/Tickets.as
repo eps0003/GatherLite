@@ -6,17 +6,9 @@ shared class Tickets
 	private uint maxTickets = 999;
 	private bool ticketTug;
 
-	private GatherMatch@ gatherMatch;
-	private CRules@ rules = getRules();
-
-	Tickets(GatherMatch@ gatherMatch)
-	{
-		@this.gatherMatch = gatherMatch;
-	}
-
 	void Reset()
 	{
-		uint playerCount = gatherMatch.getPlayerCount();
+		uint playerCount = getGatherMatch().getPlayerCount();
 		int tickets = ticketsPerPlayer > -1 ? (playerCount * ticketsPerPlayer) / 2 : -1;
 
 		SetBlueTickets(tickets);
@@ -57,7 +49,7 @@ shared class Tickets
 
 		if (!hasTickets(0))
 		{
-			gatherMatch.CheckWin(0);
+			getGatherMatch().CheckWin(0);
 		}
 	}
 
@@ -67,7 +59,7 @@ shared class Tickets
 
 		if (!hasTickets(1))
 		{
-			gatherMatch.CheckWin(1);
+			getGatherMatch().CheckWin(1);
 		}
 	}
 
@@ -92,12 +84,12 @@ shared class Tickets
 
 	int getPredictedTickets(u8 team)
 	{
-		return getTickets(team) - gatherMatch.getDeadCount(team);
+		return getTickets(team) - getGatherMatch().getDeadCount(team);
 	}
 
 	bool canDecrementTickets()
 	{
-		return gatherMatch.isLive() && rules.isMatchRunning();
+		return getGatherMatch().isLive() && getRules().isMatchRunning();
 	}
 
 	void DecrementTickets(u8 team)
@@ -113,6 +105,7 @@ shared class Tickets
 	{
 		//this is most likely called before victim blob is removed, if they were alive
 
+		GatherMatch@ gatherMatch = getGatherMatch();
 		u8 team = victim.getTeamNum();
 		int tickets = getPredictedTickets(team);
 
@@ -136,7 +129,7 @@ shared class Tickets
 		if (!ticketTug) return false;
 
 		int predictedTickets = getPredictedTickets(team);
-		uint teamSize = gatherMatch.getTeamSize(team);
+		uint teamSize = getGatherMatch().getTeamSize(team);
 
 		return predictedTickets < teamSize;
 	}
@@ -151,6 +144,8 @@ shared class Tickets
 
 	void RenderHUD()
 	{
+		CRules@ rules = getRules();
+
 		int blueTickets = getBlueTickets();
 		int redTickets = getRedTickets();
 

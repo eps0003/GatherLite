@@ -18,26 +18,25 @@ shared GatherMatch@ getGatherMatch()
 	CRules@ rules = getRules();
 
 	GatherMatch@ gatherMatch;
-	if (!rules.get("gather_match", @gatherMatch))
+	if (rules.get("gather_match", @gatherMatch))
 	{
-		@gatherMatch = GatherMatch();
-		rules.set("gather_match", gatherMatch);
+		return gatherMatch;
 	}
 
+	@gatherMatch = GatherMatch();
+	rules.set("gather_match", gatherMatch);
 	return gatherMatch;
 }
 
 shared class GatherMatch
 {
-	ReadyQueue@ readyQueue = ReadyQueue(this);
-	RestartQueue@ restartQueue = RestartQueue(this);
-	VetoQueue@ vetoQueue = VetoQueue(this);
-	ScrambleQueue@ scrambleQueue = ScrambleQueue(this);
-	Tickets@ tickets = Tickets(this);
+	ReadyQueue@ readyQueue = ReadyQueue();
+	RestartQueue@ restartQueue = RestartQueue();
+	VetoQueue@ vetoQueue = VetoQueue();
+	ScrambleQueue@ scrambleQueue = ScrambleQueue();
+	Tickets@ tickets = Tickets();
 
 	private bool matchIsLive = false;
-
-	private CRules@ rules = getRules();
 
 	GatherMatch()
 	{
@@ -68,6 +67,8 @@ shared class GatherMatch
 		LoadNextMap();
 		SyncTeams();
 
+		CRules@ rules = getRules();
+
 		string blueTeam = listUsernames(getBlueTeam());
 		string redTeam = listUsernames(getRedTeam());
 		SColor blueColor = rules.getTeam(0).color;
@@ -95,6 +96,7 @@ shared class GatherMatch
 	{
 		if (isInProgress())
 		{
+			CRules@ rules = getRules();
 			rules.clear("blue_team");
 			rules.clear("red_team");
 			SyncTeams();
@@ -131,7 +133,7 @@ shared class GatherMatch
 
 	bool isParticipating(string username)
 	{
-		return getTeamNum(username) != rules.getSpectatorTeamNum();
+		return getTeamNum(username) != getRules().getSpectatorTeamNum();
 	}
 
 	u8 getTeamNum(string username)
@@ -148,20 +150,20 @@ shared class GatherMatch
 			return 1;
 		}
 
-		return rules.getSpectatorTeamNum();
+		return getRules().getSpectatorTeamNum();
 	}
 
 	string[] getBlueTeam()
 	{
 		string[] players;
-		rules.get("blue_team", players);
+		getRules().get("blue_team", players);
 		return players;
 	}
 
 	string[] getRedTeam()
 	{
 		string[] players;
-		rules.get("red_team", players);
+		getRules().get("red_team", players);
 		return players;
 	}
 
@@ -319,7 +321,7 @@ shared class GatherMatch
 		if (isInProgress())
 		{
 			RulesCore@ core;
-			rules.get("core", @core);
+			getRules().get("core", @core);
 			if (core is null) return;
 
 			for (uint i = 0; i < getPlayersCount(); i++)
@@ -370,6 +372,8 @@ shared class GatherMatch
 			//end game if no more tickets and team is dead
 			if (!tickets.hasTickets(team) && allPlayersDead(team))
 			{
+				CRules@ rules = getRules();
+
 				u8 winTeam = (team + 1) % 2;
 				string winTeamName = rules.getTeam(winTeam).getName();
 
@@ -467,6 +471,7 @@ shared class GatherMatch
 			redTeam.push_back(username);
 		}
 
+		CRules@ rules = getRules();
 		rules.set("blue_team", blueTeam);
 		rules.set("red_team", redTeam);
 
@@ -477,6 +482,8 @@ shared class GatherMatch
 	{
 		CBitStream bs;
 		SerializeTeams(bs);
+
+		CRules@ rules = getRules();
 		rules.SendCommand(rules.getCommandID("sync_gather_teams"), bs, true);
 	}
 
@@ -484,6 +491,8 @@ shared class GatherMatch
 	{
 		CBitStream bs;
 		SerializeTeams(bs);
+
+		CRules@ rules = getRules();
 		rules.SendCommand(rules.getCommandID("sync_gather_teams"), bs, player);
 	}
 

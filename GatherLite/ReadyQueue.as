@@ -4,14 +4,6 @@ shared class ReadyQueue
 {
 	private Queue queue;
 
-	private GatherMatch@ gatherMatch;
-	private CRules@ rules = getRules();
-
-	ReadyQueue(GatherMatch@ gatherMatch)
-	{
-		@this.gatherMatch = gatherMatch;
-	}
-
 	void Add(string username)
 	{
 		if (queue.Add(username))
@@ -28,7 +20,7 @@ shared class ReadyQueue
 
 			if (everyoneReady)
 			{
-				gatherMatch.StartMatch();
+				getGatherMatch().StartMatch();
 			}
 		}
 		else
@@ -63,7 +55,7 @@ shared class ReadyQueue
 
 	string[] getNotReadyPlayers()
 	{
-		string[] matchPlayers = gatherMatch.getPlayers();
+		string[] matchPlayers = getGatherMatch().getPlayers();
 		string[] readyPlayers = queue.getPlayers();
 
 		string[] notReady;
@@ -85,7 +77,7 @@ shared class ReadyQueue
 
 	private uint getTotal()
 	{
-		return gatherMatch.getPlayerCount();
+		return getGatherMatch().getPlayerCount();
 	}
 
 	bool isEveryoneReady()
@@ -95,6 +87,8 @@ shared class ReadyQueue
 
 	void RenderHUD()
 	{
+		CRules@ rules = getRules();
+		GatherMatch@ gatherMatch = getGatherMatch();
 		Vec2f pos;
 
 		pos = Vec2f(140, 200);

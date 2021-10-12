@@ -5,13 +5,6 @@ shared class ScrambleQueue
 	private Queue queue;
 	private float requirement;
 
-	private GatherMatch@ gatherMatch;
-
-	ScrambleQueue(GatherMatch@ gatherMatch)
-	{
-		@this.gatherMatch = gatherMatch;
-	}
-
 	void Add(string username)
 	{
 		if (queue.Add(username))
@@ -27,7 +20,7 @@ shared class ScrambleQueue
 
 			if (enoughVotes)
 			{
-				gatherMatch.ScrambleTeams();
+				getGatherMatch().ScrambleTeams();
 				SendMessage("The teams have been scrambled", ConsoleColour::CRAZY);
 			}
 		}
@@ -68,7 +61,7 @@ shared class ScrambleQueue
 
 	private uint getTotal()
 	{
-		return Maths::Max(1, gatherMatch.getPlayerCount() * requirement);
+		return Maths::Max(1, getGatherMatch().getPlayerCount() * requirement);
 	}
 
 	private bool hasEnoughVotes()
@@ -78,6 +71,7 @@ shared class ScrambleQueue
 
 	void Clean()
 	{
+		GatherMatch@ gatherMatch = getGatherMatch();
 		string[] players = queue.getPlayers();
 		for (uint i = 0; i < players.length; i++)
 		{
