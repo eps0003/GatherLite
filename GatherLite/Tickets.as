@@ -4,7 +4,7 @@ shared class Tickets
 	private int redTickets = 0;
 	private int ticketsPerPlayer;
 	private uint maxTickets = 999;
-	private bool ticketTug;
+	private int ticketTugTickets;
 
 	void Reset()
 	{
@@ -84,7 +84,12 @@ shared class Tickets
 
 	int getPredictedTickets(u8 team)
 	{
-		return getTickets(team) - getGatherMatch().getDeadCount(team);
+		int tickets = getTickets(team);
+		if (tickets < 0)
+		{
+			return tickets;
+		}
+		return Maths::Max(tickets - getGatherMatch().getDeadCount(team), 0);
 	}
 
 	bool canDecrementTickets()
@@ -126,12 +131,12 @@ shared class Tickets
 
 	private bool isTicketTugActive(u8 team)
 	{
-		if (!ticketTug) return false;
+		if (ticketTugTickets < 0) return false;
 
-		int predictedTickets = getPredictedTickets(team);
-		uint teamSize = getGatherMatch().getTeamSize(team);
+		int tickets = getPredictedTickets(team);
+		if (tickets < 0) return false;
 
-		return predictedTickets < teamSize;
+		return tickets <= ticketTugTickets;
 	}
 
 	void DoTicketTug(u8 team)
@@ -173,7 +178,7 @@ shared class Tickets
 	void LoadConfig(ConfigFile@ cfg)
 	{
 		ticketsPerPlayer = cfg.read_s32("tickets_per_player", 8);
-		ticketTug = cfg.read_bool("ticket_tug", false);
+		ticketTugTickets = cfg.read_s32("ticket_tug_tickets", -1);
 	}
 
 	void Serialize(CBitStream@ bs)
