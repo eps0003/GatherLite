@@ -52,7 +52,7 @@ shared class GatherMatch
 		//the final non-ready player might have been removed
 		if (readyQueue.isEveryoneReady())
 		{
-			LoadNextMap();
+			RestartMap();
 			StartMatch();
 		}
 	}
